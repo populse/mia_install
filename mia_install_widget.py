@@ -38,32 +38,32 @@ class MIAInstallWidget(QtWidgets.QWidget):
     :Contains:
         :Method:
             - __init__
-            - find_matlab_path
-            - install_matlab_api
-            - use_matlab_changed
-            - use_spm_standalone_changed
-            - use_spm_changed
             - browse_matlab
             - browse_matlab_standalone
-            - browse_spm
-            - browse_spm_standalone
             - browse_mia_path
             - browse_projects_path
-            - set_new_layout
-            - last_layout
+            - browse_spm
+            - browse_spm_standalone
+            - btnstate
+            - find_matlab_path
             - install
-            - ok_or_abort
-            - upgrade_soma_capsul
-            - copy_directory
-            - load_config
-            - save_config
+            - install_matlab_api
             - install_package
+            - last_layout
+            - load_config
+            - make_mrifilemanager_folder
+            - make_populse_mia_folder
+            - ok_or_abort
+            - save_config
+            - set_new_layout
             - uninstall_package
-
+            - upgrade_soma_capsul
+            - use_matlab_changed
+            - use_spm_changed
+            - use_spm_standalone_changed
     """
 
     def __init__(self):
-
         super().__init__()
 
         self.matlab_path = ""
@@ -129,8 +129,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         projects_path_default = ''  # setting a default value for the projects?
 
-        self.projects_path_label = QtWidgets.QLabel("Populse_mia projects "
-                                                    "path:")
+        self.projects_path_label = QtWidgets.QLabel("Mia projects path:")
         self.projects_path_choice = QtWidgets.QLineEdit(projects_path_default)
         self.projects_path_browse = QtWidgets.QPushButton("Browse")
         self.projects_path_browse.clicked.connect(self.browse_projects_path)
@@ -314,7 +313,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.global_layout.addLayout(h_box_buttons)
 
         self.setLayout(self.global_layout)
-        self.setWindowTitle("Populse_MIA installation")
+        self.setWindowTitle("MIA installation")
 
         # Setting the checkbox values
         if matlab_path == "":
@@ -341,6 +340,60 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.use_spm_checkbox.stateChanged.connect(self.use_spm_changed)
         self.use_spm_standalone_checkbox.stateChanged.connect(
                                                 self.use_spm_standalone_changed)
+
+    def browse_matlab(self):
+        fname = QtWidgets.QFileDialog.getOpenFileName(
+                                                self,
+                                                'Choose Matlab executable file',
+                                                os.path.expanduser('~'))[0]
+
+        if fname:
+            self.matlab_choice.setText(fname)
+
+    def browse_matlab_standalone(self):
+        fname = QtWidgets.QFileDialog.getExistingDirectory(
+                                                        self,
+                                                        'Choose MCR directory',
+                                                        os.path.expanduser('~'))
+
+        if fname:
+            self.matlab_standalone_choice.setText(fname)
+
+    def browse_mia_path(self):
+        folder_name = QtWidgets.QFileDialog.getExistingDirectory(
+                                 self,
+                                 'Select a folder where to install Populse_MIA',
+                                 os.path.expanduser('~'))
+
+        if folder_name:
+            self.mia_path_choice.setText(folder_name)
+
+    def browse_projects_path(self):
+        folder_name = QtWidgets.QFileDialog.getExistingDirectory(
+                        self,
+                        "Select a folder where to store Populse_MIA's projects",
+                        os.path.expanduser('~'))
+
+        if folder_name:
+            self.projects_path_choice.setText(folder_name)
+
+    def browse_spm(self):
+        fname = QtWidgets.QFileDialog.getExistingDirectory(
+                                                        self,
+                                                        'Choose SPM directory',
+                                                        os.path.expanduser('~'))
+
+        if fname:
+            self.spm_choice.setText(fname)
+
+    def browse_spm_standalone(self):
+        fname = QtWidgets.QFileDialog.getExistingDirectory(
+                                              self,
+                                              'Choose SPM standalone directory',
+                                              os.path.expanduser('~'))
+
+        if fname:
+            self.spm_standalone_choice.setText(fname)
 
     def btnstate(self, button):
         if button.text() == "Clinical mode":
@@ -392,241 +445,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         return return_value
 
-    def install_matlab_api(self):
-        pass
-        # TODO: find a way to get the admin rights
-        """cur_dir = os.getcwd()
-        try:
-            if self.matlab_path:
-                os.chdir(os.path.join(self.matlab_path, 'extern', 'engines', 'python'))
-                subprocess.call([sys.executable, 'setup.py', 'install'])
-                os.chdir(cur_dir)
-        except:
-            os.chdir(cur_dir)"""
-
-    def use_matlab_changed(self):
-        """
-        Called when the use_matlab checkbox is changed
-        """
-
-        if not self.use_matlab_checkbox.isChecked():
-            self.matlab_choice.setDisabled(True)
-            self.matlab_standalone_choice.setDisabled(True)
-            self.spm_choice.setDisabled(True)
-            self.spm_standalone_choice.setDisabled(True)
-            self.matlab_label.setDisabled(True)
-            self.matlab_standalone_label.setDisabled(True)
-            self.spm_label.setDisabled(True)
-            self.spm_standalone_label.setDisabled(True)
-            self.spm_browse.setDisabled(True)
-            self.spm_standalone_browse.setDisabled(True)
-            self.matlab_browse.setDisabled(True)
-            self.matlab_standalone_browse.setDisabled(True)
-            self.use_spm_checkbox.setChecked(False)
-            self.use_spm_standalone_checkbox.setChecked(False)
-        else:
-            self.matlab_choice.setDisabled(False)
-            self.matlab_standalone_choice.setDisabled(False)
-            self.matlab_label.setDisabled(False)
-            self.matlab_standalone_label.setDisabled(False)
-            self.matlab_browse.setDisabled(False)
-            self.matlab_standalone_browse.setDisabled(False)
-
-    def use_spm_standalone_changed(self):
-        """
-        Called when the use_spm_standalone checkbox is changed
-        """
-
-        if not self.use_spm_standalone_checkbox.isChecked():
-            self.spm_standalone_choice.setDisabled(True)
-            self.spm_standalone_label.setDisabled(True)
-            self.spm_standalone_browse.setDisabled(True)
-        else:
-            self.spm_standalone_choice.setDisabled(False)
-            self.spm_standalone_label.setDisabled(False)
-            self.spm_standalone_browse.setDisabled(False)
-            self.spm_choice.setDisabled(True)
-            self.spm_label.setDisabled(True)
-            self.spm_browse.setDisabled(True)
-            self.use_spm_checkbox.setChecked(False)
-
-    def use_spm_changed(self):
-        """
-        Called when the use_spm checkbox is changed
-        """
-
-        if not self.use_spm_checkbox.isChecked():
-            self.spm_choice.setDisabled(True)
-            self.spm_label.setDisabled(True)
-            self.spm_browse.setDisabled(True)
-        else:
-            self.spm_choice.setDisabled(False)
-            self.spm_label.setDisabled(False)
-            self.spm_browse.setDisabled(False)
-            self.spm_standalone_choice.setDisabled(True)
-            self.spm_standalone_label.setDisabled(True)
-            self.spm_standalone_browse.setDisabled(True)
-            self.use_spm_standalone_checkbox.setChecked(False)
-
-    def browse_matlab(self):
-        fname = QtWidgets.QFileDialog.getOpenFileName(
-                                                self,
-                                                'Choose Matlab executable file',
-                                                os.path.expanduser('~'))[0]
-
-        if fname:
-            self.matlab_choice.setText(fname)
-
-    def browse_matlab_standalone(self):
-        fname = QtWidgets.QFileDialog.getExistingDirectory(
-                                                        self,
-                                                        'Choose MCR directory',
-                                                        os.path.expanduser('~'))
-
-        if fname:
-            self.matlab_standalone_choice.setText(fname)
-
-    def browse_spm(self):
-        fname = QtWidgets.QFileDialog.getExistingDirectory(
-                                                        self,
-                                                        'Choose SPM directory',
-                                                        os.path.expanduser('~'))
-
-        if fname:
-            self.spm_choice.setText(fname)
-
-    def browse_spm_standalone(self):
-        fname = QtWidgets.QFileDialog.getExistingDirectory(
-                                                        self,
-                                                        'Choose SPM standalone directory',
-                                                        os.path.expanduser('~'))
-
-        if fname:
-            self.spm_standalone_choice.setText(fname)
-
-    def browse_mia_path(self):
-        folder_name = QtWidgets.QFileDialog.getExistingDirectory(
-                                 self,
-                                 'Select a folder where to install Populse_MIA',
-                                 os.path.expanduser('~'))
-
-        if folder_name:
-            self.mia_path_choice.setText(folder_name)
-
-    def browse_projects_path(self):
-        folder_name = QtWidgets.QFileDialog.getExistingDirectory(
-                        self,
-                        "Select a folder where to store Populse_MIA's projects",
-                        os.path.expanduser('~'))
-
-        if folder_name:
-            self.projects_path_choice.setText(folder_name)
-
-    def set_new_layout(self):
-        """Changing the layout to a temporary widget.
-
-        Last step of the installation.
-        """
-        QtWidgets.QWidget().setLayout(self.global_layout)
-
-        # Setting a new layout
-        self.mia_installing_label = QtWidgets.QLabel("Mia is getting installed. "
-                                                     "Please wait! ...")
-        self.mia_installing_label.setFont(self.top_label_font)
-
-        h_box_top_label = QtWidgets.QHBoxLayout()
-        h_box_top_label.addStretch(1)
-        h_box_top_label.addWidget(self.mia_installing_label)
-        h_box_top_label.addStretch(1)
-
-        self.status_label = QtWidgets.QLabel("Status:")
-
-        self.check_box_mia = QtWidgets.QCheckBox("Installing Mia")
-
-        self.check_box_mri_conv = QtWidgets.QCheckBox("Installing MRIFileManager")
-
-        self.check_box_config = QtWidgets.QCheckBox("Writing config file")
-
-        self.check_box_pkgs = QtWidgets.QCheckBox("Installing Python packages "
-                                                  "(may take a few minutes)")
-
-        self.v_box_install_status = QtWidgets.QVBoxLayout()
-        self.v_box_install_status.addLayout(h_box_top_label)
-        self.v_box_install_status.addWidget(self.status_label)
-        self.v_box_install_status.addWidget(self.check_box_mia)
-        self.v_box_install_status.addWidget(self.check_box_mri_conv)
-        self.v_box_install_status.addWidget(self.check_box_config)
-        self.v_box_install_status.addWidget(self.check_box_pkgs)
-        self.v_box_install_status.addStretch(1)
-
-        self.setLayout(self.v_box_install_status)
-
-        QtWidgets.QApplication.processEvents()
-
-    def last_layout(self):
-        """Changing the layout to a temporary widget.
-
-        Final layout after Mia installation
-        """
-        QtWidgets.QWidget().setLayout(self.v_box_install_status)
-
-        # Setting a new layout
-        self.mia_installed_label = QtWidgets.QLabel("Mia has been correctly "
-                                                    "installed.")
-        self.mia_installed_label.setFont(self.top_label_font)
-
-        h_box_top_label = QtWidgets.QHBoxLayout()
-        h_box_top_label.addStretch(1)
-        h_box_top_label.addWidget(self.mia_installed_label)
-        h_box_top_label.addStretch(1)
-
-        mia_label_text = "- populse_mia path: {0}".format(self.mia_path)
-        projects_label_text = "- projects path: {0}".format(
-                                                        self.projects_save_path)
-        mri_conv_label_text = "- MRIFileManager path: {0}".format(
-                                                             self.mri_conv_path)
-        operating_mode_label_text = ("Populse_MIA has been installed with {0} "
-                                     "mode.").format(self.operating_mode)
-
-        mia_label = QtWidgets.QLabel(mia_label_text)
-        projects_label = QtWidgets.QLabel(projects_label_text)
-        mri_conv_label = QtWidgets.QLabel(mri_conv_label_text)
-        operating_mode_label = QtWidgets.QLabel(operating_mode_label_text)
-
-        mia_command_label_text = ("To launch populse_mia, execute one of these "
-                                  "command lines depending on your Python "
-                                  "setup:\n\n"
-                                  "python3 -m populse_mia\n\n"
-                                  "python -m populse_mia")
-        mia_command_label = QtWidgets.QLabel(mia_command_label_text)
-        mia_command_label.setFont(self.top_label_font)
-
-        button_quit = QtWidgets.QPushButton("Quit")
-        button_quit.clicked.connect(self.close)
-
-        h_box_button = QtWidgets.QHBoxLayout()
-        h_box_button.addStretch(1)
-        h_box_button.addWidget(button_quit)
-
-        v_box_last_layout = QtWidgets.QVBoxLayout()
-        v_box_last_layout.addLayout(h_box_top_label)
-        v_box_last_layout.addStretch(1)
-        v_box_last_layout.addWidget(mia_label)
-        v_box_last_layout.addWidget(projects_label)
-        v_box_last_layout.addWidget(mri_conv_label)
-        v_box_last_layout.addStretch(1)
-        v_box_last_layout.addWidget(operating_mode_label)
-        v_box_last_layout.addStretch(1)
-        v_box_last_layout.addWidget(mia_command_label)
-        v_box_last_layout.addStretch(1)
-        v_box_last_layout.addLayout(h_box_button)
-
-        self.setLayout(v_box_last_layout)
-
-        QtWidgets.QApplication.processEvents()
-
     def install(self):
-
         self.folder_exists_flag = False
 
         # Checking which operating mode has been selected
@@ -842,6 +661,108 @@ class MIAInstallWidget(QtWidgets.QWidget):
         # Displaying the result of the installation
         self.last_layout()
 
+    def install_matlab_api(self):
+        pass
+        # TODO: find a way to get the admin rights
+        """cur_dir = os.getcwd()
+        try:
+            if self.matlab_path:
+                os.chdir(os.path.join(self.matlab_path, 'extern', 'engines', 'python'))
+                subprocess.call([sys.executable, 'setup.py', 'install'])
+                os.chdir(cur_dir)
+        except:
+            os.chdir(cur_dir)"""
+
+    @staticmethod
+    def install_package(package):
+        subprocess.call([sys.executable, '-m', 'pip', 'install', '--user',
+                         '--upgrade', package])
+
+    def last_layout(self):
+        """Changing the layout to a temporary widget.
+
+        Final layout after Mia installation
+        """
+        QtWidgets.QWidget().setLayout(self.v_box_install_status)
+
+        # Setting a new layout
+        self.mia_installed_label = QtWidgets.QLabel("Mia has been correctly "
+                                                    "installed.")
+        self.mia_installed_label.setFont(self.top_label_font)
+
+        h_box_top_label = QtWidgets.QHBoxLayout()
+        h_box_top_label.addStretch(1)
+        h_box_top_label.addWidget(self.mia_installed_label)
+        h_box_top_label.addStretch(1)
+
+        mia_label_text = "- populse_mia path: {0}".format(self.mia_path)
+        projects_label_text = "- projects path: {0}".format(
+                                                        self.projects_save_path)
+        mri_conv_label_text = "- MRIFileManager path: {0}".format(
+                                                             self.mri_conv_path)
+        operating_mode_label_text = ("Populse_MIA has been installed with {0} "
+                                     "mode.").format(self.operating_mode)
+
+        mia_label = QtWidgets.QLabel(mia_label_text)
+        projects_label = QtWidgets.QLabel(projects_label_text)
+        mri_conv_label = QtWidgets.QLabel(mri_conv_label_text)
+        operating_mode_label = QtWidgets.QLabel(operating_mode_label_text)
+
+        mia_command_label_text = ("To launch populse_mia, execute one of these "
+                                  "command lines depending on your Python "
+                                  "setup:\n\n"
+                                  "python3 -m populse_mia\n\n"
+                                  "python -m populse_mia")
+        mia_command_label = QtWidgets.QLabel(mia_command_label_text)
+        mia_command_label.setFont(self.top_label_font)
+
+        button_quit = QtWidgets.QPushButton("Quit")
+        button_quit.clicked.connect(self.close)
+
+        h_box_button = QtWidgets.QHBoxLayout()
+        h_box_button.addStretch(1)
+        h_box_button.addWidget(button_quit)
+
+        v_box_last_layout = QtWidgets.QVBoxLayout()
+        v_box_last_layout.addLayout(h_box_top_label)
+        v_box_last_layout.addStretch(1)
+        v_box_last_layout.addWidget(mia_label)
+        v_box_last_layout.addWidget(projects_label)
+        v_box_last_layout.addWidget(mri_conv_label)
+        v_box_last_layout.addStretch(1)
+        v_box_last_layout.addWidget(operating_mode_label)
+        v_box_last_layout.addStretch(1)
+        v_box_last_layout.addWidget(mia_command_label)
+        v_box_last_layout.addStretch(1)
+        v_box_last_layout.addLayout(h_box_button)
+
+        self.setLayout(v_box_last_layout)
+
+        QtWidgets.QApplication.processEvents()
+
+    @staticmethod
+    def load_config(config_file):
+        f = Fernet(CONFIG)
+
+        with open(config_file, 'rb') as stream:
+
+            try:
+                stream = b"".join(stream.readlines())
+                decrypted = f.decrypt(stream)
+
+                if version.parse(yaml.__version__) > version.parse('5.1'):
+                    return yaml.load(decrypted, Loader=yaml.FullLoader)
+
+                else:
+                    return yaml.load(decrypted)
+
+            except yaml.YAMLError as exc:
+                print('error loading YAML file: %s' % config_file)
+                print(exc)
+
+            # in case of problem, return an empty config
+        return {}
+
     def make_mrifilemanager_folder(self, mia_path):
         temp_dir = tempfile.mkdtemp()
 
@@ -850,7 +771,9 @@ class MIAInstallWidget(QtWidgets.QWidget):
                          os.path.join(temp_dir, 'mri_conv')])
 
         try:
-            shutil.copytree(os.path.join(temp_dir, 'mri_conv', 'MRIFileManager'), os.path.join(mia_path, 'MRIFileManager'))
+            shutil.copytree(os.path.join(temp_dir, 'mri_conv',
+                                         'MRIFileManager'),
+                            os.path.join(mia_path, 'MRIFileManager'))
 
             # Directories are the same
         except shutil.Error as e:
@@ -863,13 +786,18 @@ class MIAInstallWidget(QtWidgets.QWidget):
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     def make_populse_mia_folder(self, populse_mia_folder):
-        os.makedirs(os.path.join(populse_mia_folder, 'processes', 'User_processes'))
+        os.makedirs(os.path.join(populse_mia_folder, 'processes',
+                                 'User_processes'))
         from pathlib import Path
-        Path(os.path.join(populse_mia_folder, 'processes', 'User_processes', '__init__.py')).touch()
+        Path(os.path.join(populse_mia_folder, 'processes',
+                          'User_processes', '__init__.py')).touch()
 
         os.makedirs(os.path.join(populse_mia_folder, 'properties'))
         saved_projects = {'paths': []}
-        self.save_config(saved_projects, os.path.join(populse_mia_folder, 'properties', 'saved_projects.yml'), fernet=False)
+        self.save_config(saved_projects,
+                         os.path.join(populse_mia_folder, 'properties',
+                                      'saved_projects.yml'),
+                         fernet=False)
         self.save_config('gAAAAABd79UO5tVZSRNqnM5zzbl0KDd7Y98KCSKCNizp9aDqADs9'
                          'dAQHJFbmOEX2QL_jJUHOTBfFFqa3OdfwpNLbvWNU_rR0VuT1Zdlm'
                          'TYv4wwRjhlyPiir7afubLrLK4Jfk84OoOeVtR0a5a0k0WqPlZl-y'
@@ -878,12 +806,11 @@ class MIAInstallWidget(QtWidgets.QWidget):
                          'i-7GW1UGa4zEKCsoY6T19vrimiuRVy-DTmmgzbbjGkgmNxB5MvEz'
                          's0BF2bAcina_lKR-yeICuIqpTSOBfgkTDcB0LVPBoQmogUVVTeCr'
                          'jYH9_llFTJQ3ZtKZLdeStFR5Y2I2ZkQETi6m-0wmUDKf-KRzmk6s'
-                         'LRK_oz6GmuTAN8A51au2v1M=', os.path.join(populse_mia_folder, 'properties','config.yml'), fernet=False)
-
-
-
-
-
+                         'LRK_oz6Gmu'
+                         'TAN8A51au2v1M=', os.path.join(populse_mia_folder,
+                                                        'properties',
+                                                        'config.yml'),
+                         fernet=False)
 
     def ok_or_abort(self, button):
         role = self.msg.buttonRole(button)
@@ -893,6 +820,70 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         else:
             self.folder_exists_flag = True
+
+    @staticmethod
+    def save_config(config_dic, config_file, fernet=False):
+        if fernet is True:
+            f = Fernet(CONFIG)
+            with open(config_file, 'wb') as configfile:
+                stream = yaml.dump(config_dic, default_flow_style=False,
+                                   allow_unicode=True)
+                configfile.write(f.encrypt(stream.encode()))
+        else:
+            with open(config_file, 'w', encoding='utf8') as configfile:
+                yaml.dump(config_dic, configfile, default_flow_style=False,
+                          allow_unicode=True)
+
+    def set_new_layout(self):
+        """Changing the layout to a temporary widget.
+
+        Last step of the installation.
+        """
+        QtWidgets.QWidget().setLayout(self.global_layout)
+
+        # Setting a new layout
+        self.mia_installing_label = QtWidgets.QLabel("Mia is getting installed."
+                                                     " Please wait! ...")
+        self.mia_installing_label.setFont(self.top_label_font)
+
+        h_box_top_label = QtWidgets.QHBoxLayout()
+        h_box_top_label.addStretch(1)
+        h_box_top_label.addWidget(self.mia_installing_label)
+        h_box_top_label.addStretch(1)
+
+        self.status_label = QtWidgets.QLabel("Status:")
+
+        self.check_box_mia = QtWidgets.QCheckBox("Installing Mia")
+
+        self.check_box_mri_conv = QtWidgets.QCheckBox("Installing "
+                                                      "MRIFileManager")
+
+        self.check_box_config = QtWidgets.QCheckBox("Writing config file")
+
+        self.check_box_pkgs = QtWidgets.QCheckBox("Installing Python packages "
+                                                  "(may take a few minutes)")
+
+        self.v_box_install_status = QtWidgets.QVBoxLayout()
+        self.v_box_install_status.addLayout(h_box_top_label)
+        self.v_box_install_status.addWidget(self.status_label)
+        self.v_box_install_status.addWidget(self.check_box_mia)
+        self.v_box_install_status.addWidget(self.check_box_mri_conv)
+        self.v_box_install_status.addWidget(self.check_box_config)
+        self.v_box_install_status.addWidget(self.check_box_pkgs)
+        self.v_box_install_status.addStretch(1)
+
+        self.setLayout(self.v_box_install_status)
+
+        QtWidgets.QApplication.processEvents()
+
+    @staticmethod
+    def uninstall_package(package):
+        try:
+            subprocess.call([sys.executable, '-m', 'pip', 'uninstall',
+                             '--yes', package])
+
+        except Exception:
+            subprocess.call(['pip3', 'uninstall', '--yes', package])
 
     def upgrade_soma_capsul(self):
         temp_dir = tempfile.mkdtemp()
@@ -950,71 +941,66 @@ class MIAInstallWidget(QtWidgets.QWidget):
         os.chdir(cwd)
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-    # @staticmethod
-    # def copy_directory(src, dest):
-    #     file_directory = os.path.dirname(os.path.realpath(__file__))
-    #     src_path = os.path.join(file_directory, src)
-    #
-    #     try:
-    #         shutil.copytree(src_path, dest)
-    #
-    #         # Directories are the same
-    #     except shutil.Error as e:
-    #         print('Directory not copied. Error: %s' % e)
-    #
-    #     # Any error saying that the directory doesn't exist
-    #     except OSError as e:
-    #         print('Directory not copied. Error: %s' % e)
+    def use_matlab_changed(self):
+        """
+        Called when the use_matlab checkbox is changed
+        """
 
-    @staticmethod
-    def load_config(config_file):
-        f = Fernet(CONFIG)
-
-        with open(config_file, 'rb') as stream:
-
-            try:
-                stream = b"".join(stream.readlines())
-                decrypted = f.decrypt(stream)
-
-                if version.parse(yaml.__version__) > version.parse('5.1'):
-                    return yaml.load(decrypted, Loader=yaml.FullLoader)
-
-                else:
-                    return yaml.load(decrypted)
-
-            except yaml.YAMLError as exc:
-                print('error loading YAML file: %s' % config_file)
-                print(exc)
-
-            # in case of problem, return an empty config
-        return {}
-
-    @staticmethod
-    def save_config(config_dic, config_file, fernet=False):
-        if fernet is True:
-            f = Fernet(CONFIG)
-            with open(config_file, 'wb') as configfile:
-                stream = yaml.dump(config_dic, default_flow_style=False,
-                                   allow_unicode=True)
-                configfile.write(f.encrypt(stream.encode()))
+        if not self.use_matlab_checkbox.isChecked():
+            self.matlab_choice.setDisabled(True)
+            self.matlab_standalone_choice.setDisabled(True)
+            self.spm_choice.setDisabled(True)
+            self.spm_standalone_choice.setDisabled(True)
+            self.matlab_label.setDisabled(True)
+            self.matlab_standalone_label.setDisabled(True)
+            self.spm_label.setDisabled(True)
+            self.spm_standalone_label.setDisabled(True)
+            self.spm_browse.setDisabled(True)
+            self.spm_standalone_browse.setDisabled(True)
+            self.matlab_browse.setDisabled(True)
+            self.matlab_standalone_browse.setDisabled(True)
+            self.use_spm_checkbox.setChecked(False)
+            self.use_spm_standalone_checkbox.setChecked(False)
         else:
-            with open(config_file, 'w', encoding='utf8') as configfile:
-                yaml.dump(config_dic, configfile, default_flow_style=False,
-                          allow_unicode=True)
+            self.matlab_choice.setDisabled(False)
+            self.matlab_standalone_choice.setDisabled(False)
+            self.matlab_label.setDisabled(False)
+            self.matlab_standalone_label.setDisabled(False)
+            self.matlab_browse.setDisabled(False)
+            self.matlab_standalone_browse.setDisabled(False)
 
-    @staticmethod
-    def install_package(package):
-        subprocess.call([sys.executable, '-m', 'pip', 'install', '--user',
-                         '--upgrade', package])
-        # subprocess.call([sys.executable, '-m', 'pip', 'install', '--user', '--extra-index-url',
-        #                  'https://test.pypi.org/simple/', package])
+    def use_spm_changed(self):
+        """
+        Called when the use_spm checkbox is changed
+        """
 
-    @staticmethod
-    def uninstall_package(package):
+        if not self.use_spm_checkbox.isChecked():
+            self.spm_choice.setDisabled(True)
+            self.spm_label.setDisabled(True)
+            self.spm_browse.setDisabled(True)
+        else:
+            self.spm_choice.setDisabled(False)
+            self.spm_label.setDisabled(False)
+            self.spm_browse.setDisabled(False)
+            self.spm_standalone_choice.setDisabled(True)
+            self.spm_standalone_label.setDisabled(True)
+            self.spm_standalone_browse.setDisabled(True)
+            self.use_spm_standalone_checkbox.setChecked(False)
 
-        try:
-            subprocess.call([sys.executable, '-m', 'pip', 'uninstall',
-                             '--yes', package])
+    def use_spm_standalone_changed(self):
+        """
+        Called when the use_spm_standalone checkbox is changed
+        """
 
-        except Exception:
-            subprocess.call(['pip3', 'uninstall', '--yes', package])
+        if not self.use_spm_standalone_checkbox.isChecked():
+            self.spm_standalone_choice.setDisabled(True)
+            self.spm_standalone_label.setDisabled(True)
+            self.spm_standalone_browse.setDisabled(True)
+        else:
+            self.spm_standalone_choice.setDisabled(False)
+            self.spm_standalone_label.setDisabled(False)
+            self.spm_standalone_browse.setDisabled(False)
+            self.spm_choice.setDisabled(True)
+            self.spm_label.setDisabled(True)
+            self.spm_browse.setDisabled(True)
+            self.use_spm_checkbox.setChecked(False)

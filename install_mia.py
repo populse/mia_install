@@ -18,8 +18,11 @@ of mia.
 # for details.
 ###############################################################################
 
-import sys
+import importlib
 import subprocess
+import sys
+from mia_install_widget import MIAInstallWidget
+
 
 
 def install_package(package):
@@ -27,8 +30,6 @@ def install_package(package):
 
      Careful: "pyyaml" in the PyPi world but "yaml" in the Python world.
     """
-    import importlib
-
     try:
 
         if package == 'pyyaml':
@@ -97,8 +98,6 @@ if __name__ == '__main__':
                  'updated!\n\nPlease relaunch the following command:\n    '
                  'python3 install_mia.py\n\nIf the issue persists try to '
                  'install the problematic module by hand.\n'.format(e))
-
-    from mia_install_widget import MIAInstallWidget
 
     app = QtWidgets.QApplication(sys.argv)
     mia_install_widget = MIAInstallWidget()
