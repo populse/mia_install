@@ -27,6 +27,7 @@ import tempfile
 import yaml
 from cryptography.fernet import Fernet
 from packaging import version
+from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 CONFIG = b'5YSmesxZ4ge9au2Bxe7XDiQ3U5VCdLeRdqimOOggKyc='
@@ -160,6 +161,29 @@ class MIAInstallWidget(QtWidgets.QWidget):
         v_box_paths.addLayout(v_box_projects_path)
 
         self.groupbox.setLayout(v_box_paths)
+
+        # Installation target groupbox
+        self.install_target_group_box = QtWidgets.QGroupBox('Installation target:')
+
+        self.casa_target_push_button = QtWidgets.QRadioButton(
+            'Casa_Distro')
+        self.casa_target_push_button.toggled.connect(
+            lambda: self.btnstate(self.casa_target_push_button))
+        self.host_target_push_button = QtWidgets.QRadioButton(
+            'Host')
+        self.host_target_push_button.setChecked(True)
+        self.host_target_push_button.toggled.connect(
+            lambda: self.btnstate(self.host_target_push_button))
+
+        v_box_install_target = QtWidgets.QVBoxLayout()
+        v_box_install_target.addWidget(self.casa_target_push_button)
+        v_box_install_target.addWidget(self.host_target_push_button)
+
+        self.install_target_group_box.setLayout(v_box_install_target)
+
+        h_box_install_target = QtWidgets.QVBoxLayout()
+        h_box_install_target.addWidget(self.install_target_group_box)
+        h_box_install_target.addStretch(1)
 
         # Clinical mode groupbox
         self.clinical_mode_group_box = QtWidgets.QGroupBox('Operating mode:')
@@ -296,8 +320,17 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.groupbox_spm.setLayout(v_box_spm)
 
         # Final layout
+
+        qradiobutton_layout = QtWidgets.QVBoxLayout()
+        qradiobutton_layout.addLayout(h_box_install_target)
+        qradiobutton_layout.addLayout(h_box_clinical_mode)
+
+
+
         h_box_mode_paths = QtWidgets.QHBoxLayout()
-        h_box_mode_paths.addLayout(h_box_clinical_mode)
+        #h_box_mode_paths.addLayout(h_box_install_target)
+        #h_box_mode_paths.addLayout(h_box_clinical_mode)
+        h_box_mode_paths.addLayout(qradiobutton_layout)
         h_box_mode_paths.addWidget(self.groupbox)
 
         h_box_matlab_spm = QtWidgets.QHBoxLayout()
@@ -412,6 +445,22 @@ class MIAInstallWidget(QtWidgets.QWidget):
             else:
                 self.clinical_mode_push_button.setChecked(True)
 
+        if button.text() == "Casa_Distro":
+
+            if button.isChecked() == True:
+                self.host_target_push_button.setChecked(False)
+
+            else:
+                self.host_target_push_button.setChecked(True)
+
+        if button.text() == "Host":
+
+            if button.isChecked() == True:
+                self.casa_target_push_button.setChecked(False)
+
+            else:
+                self.casa_target_push_button.setChecked(True)
+
     def find_matlab_path(self):
         return_value = ""
 
@@ -447,6 +496,13 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
     def install(self):
         self.folder_exists_flag = False
+
+        #Checking which installation target has been selected
+        if self.host_target_push_button.isChecked():
+            host_target_install = True
+
+        else:
+            host_target_install = False
 
         # Checking which operating mode has been selected
         if self.clinical_mode_push_button.isChecked():
@@ -637,6 +693,9 @@ class MIAInstallWidget(QtWidgets.QWidget):
             config_dic["spm_standalone"] = spm_standalone
             self.save_config(config_dic, config_file, fernet=True)
 
+        else:
+            print('\nWarning! No {} file found ...\n'.format(config_file))
+
         # Adding mia path to /home/.populse_mia/configuration.yml
         home_config = {'mia_user_path': os.path.join(mia_path, 'populse_mia')}
 
@@ -648,11 +707,15 @@ class MIAInstallWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
 
         # Upgrading soma-base, soma_worflow and capsul: we don't know if these
-        # packages ares uptodate
-        self.upgrade_soma_capsul()
+        # packages are uptodate
+        if host_target_install:
+            self.upgrade_soma_capsul()
 
         # Installing Populse_mia and mia_processes from pypi
         self.install_package('populse-mia')
+
+        if not host_target_install:
+            self.uninstall_package('populse-db')
 
         # Updating the checkbox
         self.check_box_pkgs.setChecked(True)
@@ -788,7 +851,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
     def make_populse_mia_folder(self, populse_mia_folder):
         os.makedirs(os.path.join(populse_mia_folder, 'processes',
                                  'User_processes'))
-        from pathlib import Path
         Path(os.path.join(populse_mia_folder, 'processes',
                           'User_processes', '__init__.py')).touch()
 
