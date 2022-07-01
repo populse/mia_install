@@ -716,6 +716,9 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         if not host_target_install:
             self.uninstall_package('populse-db')
+            self.uninstall_package('capsul')
+            self.uninstall_package('soma-base')
+            self.uninstall_package('soma-workflow')
 
         # Updating the checkbox
         self.check_box_pkgs.setChecked(True)
