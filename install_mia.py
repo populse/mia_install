@@ -21,8 +21,6 @@ of mia.
 import importlib
 import subprocess
 import sys
-from mia_install_widget import MIAInstallWidget
-
 
 
 def install_package(package):
@@ -88,8 +86,10 @@ if __name__ == '__main__':
 
     try:
         from PyQt5 import QtWidgets
-        import yaml, packaging, cryptography
-
+        import yaml, packaging, crypt
+        # If the packages needed for MIAInstallWidget are installed, we
+        # can now import MIAInstallWidget
+        from mia_install_widget import MIAInstallWidget
     except ImportError as e:
        # print('\nPython package environment has not been correctly updated!\n'
        #       '\nPlease relaunch the following command:\n '
