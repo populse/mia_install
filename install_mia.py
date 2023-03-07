@@ -87,6 +87,9 @@ if __name__ == '__main__':
     try:
         from PyQt5 import QtWidgets
         import yaml, packaging, crypt
+        # FIXME: crypt to be replaced by legacycrypt, bcrypt, argon2-cffi,
+        #        hashlib,and passlib, in python 3.13
+
         # If the packages needed for MIAInstallWidget are installed, we
         # can now import MIAInstallWidget
         from mia_install_widget import MIAInstallWidget
