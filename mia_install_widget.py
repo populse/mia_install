@@ -488,8 +488,12 @@ class MIAInstallWidget(QtWidgets.QWidget):
                                                 'bin', 'matlab.exe')
                 else:
                     return_value = ""
-        except Exception as e:
-            print('\n{0}: {1}\n'.format(e.__class__, e))
+    
+        # except Exception as e:
+        except Exception:
+            # print('\n{0}: {1}\n'.format(e.__class__, e))
+            print("\nThe matlab path could not be determined "
+                  "automatically ...\n"
             pass
 
         return return_value
