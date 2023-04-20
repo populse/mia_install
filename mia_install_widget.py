@@ -46,6 +46,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
             - browse_spm
             - browse_spm_standalone
             - btnstate
+            - clone_miaResources
             - find_matlab_path
             - install
             - install_matlab_api
@@ -111,12 +112,14 @@ class MIAInstallWidget(QtWidgets.QWidget):
         rect = QtCore.QRect(4, 4, 17, 17)
         region = QtGui.QRegion(rect, QtGui.QRegion.Ellipse)
         self.mia_path_info.setMask(region)
-        tool_tip_message = ("Two folders will be created in the selected "
+        tool_tip_message = ("Three folders will be created in the selected "
                             "folder:\n"
                             "- populse_mia: containing Mia's configuration "
                             "and resources files.\n"
                             "- MRIFileManager: containing the data converter "
-                            "used in Mia.")
+                            "used in Mia."
+                            "- MiaResources: containing reference data "
+                            "(ROI, templates, etc.)")
         self.mia_path_info.setToolTip(tool_tip_message)
 
         h_box_mia_path = QtWidgets.QHBoxLayout()
@@ -190,15 +193,10 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         self.clinical_mode_push_button = QtWidgets.QRadioButton('Clinical mode')
         self.clinical_mode_push_button.toggled.connect(
-                          lambda: self.btnstate(self.clinical_mode_push_button))
-        self.research_mode_push_button = QtWidgets.QRadioButton('Research mode')
-        self.research_mode_push_button.setChecked(True)
-        self.research_mode_push_button.toggled.connect(
-                          lambda: self.btnstate(self.research_mode_push_button))
+            lambda: self.btnstate(self.clinical_mode_push_button))
 
         v_box_clinical_mode = QtWidgets.QVBoxLayout()
         v_box_clinical_mode.addWidget(self.clinical_mode_push_button)
-        v_box_clinical_mode.addWidget(self.research_mode_push_button)
 
         self.clinical_mode_group_box.setLayout(v_box_clinical_mode)
 
@@ -236,7 +234,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.matlab_standalone_choice = QtWidgets.QLineEdit()
         self.matlab_standalone_browse = QtWidgets.QPushButton("Browse")
         self.matlab_standalone_browse.clicked.connect(
-                                                  self.browse_matlab_standalone)
+            self.browse_matlab_standalone)
 
         h_box_use_matlab = QtWidgets.QHBoxLayout()
         h_box_use_matlab.addWidget(self.use_matlab_checkbox)
@@ -325,11 +323,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         qradiobutton_layout.addLayout(h_box_install_target)
         qradiobutton_layout.addLayout(h_box_clinical_mode)
 
-
-
         h_box_mode_paths = QtWidgets.QHBoxLayout()
-        #h_box_mode_paths.addLayout(h_box_install_target)
-        #h_box_mode_paths.addLayout(h_box_clinical_mode)
         h_box_mode_paths.addLayout(qradiobutton_layout)
         h_box_mode_paths.addWidget(self.groupbox)
 
@@ -372,78 +366,63 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.use_matlab_checkbox.stateChanged.connect(self.use_matlab_changed)
         self.use_spm_checkbox.stateChanged.connect(self.use_spm_changed)
         self.use_spm_standalone_checkbox.stateChanged.connect(
-                                                self.use_spm_standalone_changed)
+            self.use_spm_standalone_changed)
 
     def browse_matlab(self):
         fname = QtWidgets.QFileDialog.getOpenFileName(
-                                                self,
-                                                'Choose Matlab executable file',
-                                                os.path.expanduser('~'))[0]
+            self,
+            'Choose Matlab executable file',
+            os.path.expanduser('~'))[0]
 
         if fname:
             self.matlab_choice.setText(fname)
 
     def browse_matlab_standalone(self):
         fname = QtWidgets.QFileDialog.getExistingDirectory(
-                                                        self,
-                                                        'Choose MCR directory',
-                                                        os.path.expanduser('~'))
+            self,
+            'Choose MCR directory',
+            os.path.expanduser('~'))
 
         if fname:
             self.matlab_standalone_choice.setText(fname)
 
     def browse_mia_path(self):
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
-                                 self,
-                                 'Select a folder where to install Populse_MIA',
-                                 os.path.expanduser('~'))
+            self,
+            'Select a folder where to install Populse_MIA',
+            os.path.expanduser('~'))
 
         if folder_name:
             self.mia_path_choice.setText(folder_name)
 
     def browse_projects_path(self):
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
-                        self,
-                        "Select a folder where to store Populse_MIA's projects",
-                        os.path.expanduser('~'))
+            self,
+            "Select a folder where to store Populse_MIA's projects",
+            os.path.expanduser('~'))
 
         if folder_name:
             self.projects_path_choice.setText(folder_name)
 
     def browse_spm(self):
         fname = QtWidgets.QFileDialog.getExistingDirectory(
-                                                        self,
-                                                        'Choose SPM directory',
-                                                        os.path.expanduser('~'))
+            self,
+            'Choose SPM directory',
+            os.path.expanduser('~'))
 
         if fname:
             self.spm_choice.setText(fname)
 
     def browse_spm_standalone(self):
         fname = QtWidgets.QFileDialog.getExistingDirectory(
-                                              self,
-                                              'Choose SPM standalone directory',
-                                              os.path.expanduser('~'))
+            self,
+            'Choose SPM standalone directory',
+            os.path.expanduser('~'))
 
         if fname:
             self.spm_standalone_choice.setText(fname)
 
     def btnstate(self, button):
-        if button.text() == "Clinical mode":
-
-            if button.isChecked() == True:
-                self.research_mode_push_button.setChecked(False)
-
-            else:
-                self.research_mode_push_button.setChecked(True)
-
-        if button.text() == "Research mode":
-
-            if button.isChecked() == True:
-                self.clinical_mode_push_button.setChecked(False)
-
-            else:
-                self.clinical_mode_push_button.setChecked(True)
 
         if button.text() == "Casa_Distro":
 
@@ -488,7 +467,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
                                                 'bin', 'matlab.exe')
                 else:
                     return_value = ""
-    
+
         # except Exception as e:
         except Exception:
             # print('\n{0}: {1}\n'.format(e.__class__, e))
@@ -501,7 +480,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
     def install(self):
         self.folder_exists_flag = False
 
-        #Checking which installation target has been selected
+        # Checking which installation target has been selected
         if self.host_target_push_button.isChecked():
             host_target_install = True
 
@@ -644,7 +623,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
                                                                'projects'))
         self.mri_conv_path = os.path.abspath(os.path.join(mia_path,
                                                           'MRIFileManager'))
-
+        self.mia_resources_path = os.path.abspath(os.path.join(mia_path,
+                                                               'MiaResources'))
         self.set_new_layout()
 
         # Creating a "projects" folder in the specified projects folder
@@ -670,6 +650,9 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         self.make_mrifilemanager_folder(mia_path)
 
+        # Clone MiaResources
+        self.clone_miaResources(mia_path)
+
         # Updating the checkbox
         self.check_box_mri_conv.setChecked(True)
         QtWidgets.QApplication.processEvents()
@@ -684,6 +667,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
             config_dic = self.load_config(config_file)
             config_dic["projects_save_path"] = os.path.join(projects_path,
                                                             'projects')
+            config_dic["resources_path"] = os.path.join(mia_path,
+                                                        'MiaResources')
             config_dic["mri_conv_path"] = os.path.join(mia_path,
                                                        'MRIFileManager',
                                                        'MRIManager.jar')
@@ -767,15 +752,18 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         mia_label_text = "- populse_mia path: {0}".format(self.mia_path)
         projects_label_text = "- projects path: {0}".format(
-                                                        self.projects_save_path)
+            self.projects_save_path)
         mri_conv_label_text = "- MRIFileManager path: {0}".format(
-                                                             self.mri_conv_path)
+            self.mri_conv_path)
+        mia_resources_label_text = "- MiaResources path: {0}".format(
+            self.mia_resources_path)
         operating_mode_label_text = ("Populse_MIA has been installed with {0} "
                                      "mode.").format(self.operating_mode)
 
         mia_label = QtWidgets.QLabel(mia_label_text)
         projects_label = QtWidgets.QLabel(projects_label_text)
         mri_conv_label = QtWidgets.QLabel(mri_conv_label_text)
+        mia_resources_label = QtWidgets.QLabel(mia_resources_label_text)
         operating_mode_label = QtWidgets.QLabel(operating_mode_label_text)
 
         mia_command_label_text = ("To launch populse_mia, execute one of these "
@@ -799,6 +787,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         v_box_last_layout.addWidget(mia_label)
         v_box_last_layout.addWidget(projects_label)
         v_box_last_layout.addWidget(mri_conv_label)
+        v_box_last_layout.addWidget(mia_resources_label)
         v_box_last_layout.addStretch(1)
         v_box_last_layout.addWidget(operating_mode_label)
         v_box_last_layout.addStretch(1)
@@ -846,6 +835,27 @@ class MIAInstallWidget(QtWidgets.QWidget):
                             os.path.join(mia_path, 'MRIFileManager'))
 
             # Directories are the same
+        except shutil.Error as e:
+            print('Directory not copied. Error: %s' % e)
+
+        # Any error saying that the directory doesn't exist
+        except OSError as e:
+            print('Directory not copied. Error: %s' % e)
+
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def clone_miaResources(self, mia_path):
+        temp_dir = tempfile.mkdtemp()
+
+        subprocess.call(['git', 'clone',
+                         'https://gricad-gitlab.univ-grenoble-alpes.fr/condamie/miaresources.git',
+                         os.path.join(temp_dir, 'MiaResources')])
+
+        try:
+            shutil.copytree(os.path.join(temp_dir, 'MiaResources'),
+                            os.path.join(mia_path, 'MiaResources'))
+
+        # Directories are the same
         except shutil.Error as e:
             print('Directory not copied. Error: %s' % e)
 
