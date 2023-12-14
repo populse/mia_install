@@ -93,10 +93,8 @@ if __name__ == '__main__':
         # If the packages needed for MIAInstallWidget are installed, we
         # can now import MIAInstallWidget
         from mia_install_widget import MIAInstallWidget
+
     except ImportError as e:
-       # print('\nPython package environment has not been correctly updated!\n'
-       #       '\nPlease relaunch the following command:\n '
-       #       'python3 install_mia.py')
         sys.exit('\n{}...\n\nPython package environment has not been correctly '
                  'updated!\n\nPlease relaunch the following command:\n    '
                  'python3 install_mia.py\n\nIf the issue persists try to '
@@ -108,9 +106,9 @@ if __name__ == '__main__':
     # Setting the window to the middle of the screen
     frame_gm = mia_install_widget.frameGeometry()
     screen = QtWidgets.QApplication.desktop().screenNumber(
-                                QtWidgets.QApplication.desktop().cursor().pos())
+                            QtWidgets.QApplication.desktop().cursor().pos())
     center_point = QtWidgets.QApplication.desktop().screenGeometry(
-                                                                screen).center()
+                                                            screen).center()
     frame_gm.moveCenter(center_point)
     mia_install_widget.move(frame_gm.topLeft())
 

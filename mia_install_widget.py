@@ -41,7 +41,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
             - __init__
             - browse_matlab
             - browse_matlab_standalone
-            - browse_mia_path
+            - browse_mia_config_path
             - browse_projects_path
             - browse_spm
             - browse_spm_standalone
@@ -71,17 +71,17 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.matlab_path = ""
 
         # Labels
-        self.top_label_text = 'Welcome to Mia installation.'
-        self.top_label = QtWidgets.QLabel(self.top_label_text)
-
-        self.top_label_font = QtGui.QFont()
-        self.top_label_font.setBold(True)
-        self.top_label.setFont(self.top_label_font)
-
-        h_box_top_label = QtWidgets.QHBoxLayout()
-        h_box_top_label.addStretch(1)
-        h_box_top_label.addWidget(self.top_label)
-        h_box_top_label.addStretch(1)
+        # self.top_label_text = ''
+        # self.top_label = QtWidgets.QLabel(self.top_label_text)
+        #
+        # self.top_label_font = QtGui.QFont()
+        # self.top_label_font.setBold(True)
+        # self.top_label.setFont(self.top_label_font)
+        #
+        # h_box_top_label = QtWidgets.QHBoxLayout()
+        # h_box_top_label.addStretch(1)
+        # h_box_top_label.addWidget(self.top_label)
+        # h_box_top_label.addStretch(1)
 
         self.middle_label_text = ('Please select an installation path, a '
                                   'folder to store your future projects and '
@@ -100,10 +100,10 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         mia_path_default = os.path.join(os.path.expanduser('~'), '.populse_mia')
 
-        self.mia_path_label = QtWidgets.QLabel("Mia installation path:")
+        self.mia_path_label = QtWidgets.QLabel("Mia configuration path:")
         self.mia_path_choice = QtWidgets.QLineEdit(mia_path_default)
         self.mia_path_browse = QtWidgets.QPushButton("Browse")
-        self.mia_path_browse.clicked.connect(self.browse_mia_path)
+        self.mia_path_browse.clicked.connect(self.browse_mia_config_path)
 
         self.mia_path_info = QtWidgets.QPushButton(" ? ")
         self.mia_path_info.setFixedHeight(27)
@@ -332,7 +332,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         h_box_matlab_spm.addWidget(self.groupbox_spm)
 
         self.global_layout = QtWidgets.QVBoxLayout()
-        self.global_layout.addLayout(h_box_top_label)
+        # self.global_layout.addLayout(h_box_top_label)
         self.global_layout.addLayout(h_box_middle_label)
         self.global_layout.addStretch(1)
         self.global_layout.addLayout(h_box_mode_paths)
@@ -386,7 +386,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         if fname:
             self.matlab_standalone_choice.setText(fname)
 
-    def browse_mia_path(self):
+    def browse_mia_config_path(self):
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Select a folder where to install Populse_MIA',
@@ -522,41 +522,152 @@ class MIAInstallWidget(QtWidgets.QWidget):
             use_spm_standalone = False
             spm_standalone = ""
 
-        # Creating the .populse_mia folder if it does not exists
-        dot_mia_path = os.path.join(os.path.expanduser('~'), '.populse_mia')
+        # The directory in which the configuration is located must be
+        # declared in ~/.populse_mia/configuration_path.yml
+        dot_mia_config = os.path.join(os.path.expanduser("~"),
+                                      ".populse_mia",
+                                      "configuration_path.yml"
+        )
+        # ~/.populse_mia/configuration_path.yml management/initialisation
+        if not os.path.exists(os.path.dirname(dot_mia_config)):
+            os.mkdir(os.path.dirname(dot_mia_config))
+            print(
+                "\nThe {0} directory is created "
+                "...".format(os.path.dirname(dot_mia_config))
+            )
+            Path(os.path.join(dot_mia_config)).touch()
 
-        if not os.path.isdir(dot_mia_path):
-            os.mkdir(dot_mia_path)
+        if not os.path.exists(dot_mia_config):
+            Path(os.path.join(dot_mia_config)).touch()
 
-        # Checking that the specified paths are correct
-        mia_path = self.mia_path_choice.text()
+        mia_home_properties_path = dict()
 
-        if not os.path.isdir(mia_path):
-            message = ("The selected path for populse_mia must be "
-                       "an existing folder")
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Populse_MIA path is not valid")
-            msg.setInformativeText(message)
-            msg.setWindowTitle("Warning")
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msg.buttonClicked.connect(msg.close)
-            msg.exec()
-            return
+        properties_path = self.mia_path_choice.text()
+
+        if properties_path.endswith(os.sep):
+            properties_path = properties_path[:-1]
+            self.mia_path_choice.setText(properties_path)
+
+        properties_path = os.path.join(properties_path, "usr")
+
+        # properties folder management / initialisation:
+        properties_dir = os.path.join(properties_path, "properties")
+
+        if not os.path.exists(properties_dir):
+            os.makedirs(properties_dir, exist_ok=True)
+            print("\nThe {0} directory is created...".format(properties_dir))
+
+        if not os.path.exists(
+                os.path.join(properties_dir, "saved_projects.yml")
+        ):
+            with open(os.path.join(properties_dir,
+                                   "saved_projects.yml"),
+                      "w",
+                      encoding="utf8") as configfile:
+                yaml.dump(
+                    {"paths": []},
+                    configfile,
+                    default_flow_style=False,
+                    allow_unicode=True,
+                )
+
+            print(
+                "\nThe {0} file is created...".format(
+                    os.path.join(properties_dir, "saved_projects.yml")
+                )
+            )
+
+        if not os.path.exists(os.path.join(properties_dir, "config.yml")):
+
+            with open(os.path.join(properties_dir, "config.yml"),
+                      "w",
+                      encoding="utf8") as configfile:
+                yaml.dump(
+                    "gAAAAABd79UO5tVZSRNqnM5zzbl0KDd7Y98KCSKCNizp9aDq"
+                    "ADs9dAQHJFbmOEX2QL_jJUHOTBfFFqa3OdfwpNLbvWNU_rR0"
+                    "VuT1ZdlmTYv4wwRjhlyPiir7afubLrLK4Jfk84OoOeVtR0a5"
+                    "a0k0WqPlZl-y8_Wu4osHeQCfeWFKW5EWYF776rWgJZsjn3fx"
+                    "Z-V2g5aHo-Q5aqYi2V1Kc-kQ9ZwjFBFbXNa1g9nHKZeyd3ve"
+                    "6p3RUSELfUmEhS0eOWn8i-7GW1UGa4zEKCsoY6T19vrimiuR"
+                    "Vy-DTmmgzbbjGkgmNxB5MvEzs0BF2bAcina_lKR-yeICuIqp"
+                    "TSOBfgkTDcB0LVPBoQmogUVVTeCrjYH9_llFTJQ3ZtKZLdeS"
+                    "tFR5Y2I2ZkQETi6m-0wmUDKf-KRzmk6sLRK_oz6GmuTAN8A5"
+                    "1au2v1M=",
+                    configfile,
+                    default_flow_style=False,
+                    allow_unicode=True,
+                )
+
+            print(
+                "\nThe {0} file is created...".format(
+                    os.path.join(properties_dir, "config.yml")
+                )
+            )
+
+            # processes/User_processes folder management / initialisation:
+            user_processes_dir = os.path.join(
+                properties_path, "processes", "User_processes"
+            )
+
+            if not os.path.exists(user_processes_dir):
+                os.makedirs(user_processes_dir, exist_ok=True)
+                print(
+                    "\nThe {0} directory is created...".format(
+                        user_processes_dir
+                    )
+                )
+
+            if not os.path.exists(
+                    os.path.join(user_processes_dir, "__init__.py")
+            ):
+                Path(
+                    os.path.join(
+                        user_processes_dir,
+                        "__init__.py",
+                    )
+                ).touch()
+                print(
+                    "\nThe {0} file is created...".format(
+                        os.path.join(properties_dir, "config.yml")
+                    )
+                )
+
+        #########################
+        # dot_mia_path = os.path.join(os.path.expanduser('~'), '.populse_mia')
+        #
+        # if not os.path.isdir(dot_mia_path):
+        #     os.mkdir(dot_mia_path)
+        #
+        # # Checking that the specified paths are correct
+        # mia_path = self.mia_path_choice.text()
+        #
+        # if not os.path.isdir(mia_path):
+        #     message = ("The selected path for populse_mia must be "
+        #                "an existing folder")
+        #     msg = QtWidgets.QMessageBox()
+        #     msg.setIcon(QtWidgets.QMessageBox.Warning)
+        #     msg.setText("Populse_MIA path is not valid")
+        #     msg.setInformativeText(message)
+        #     msg.setWindowTitle("Warning")
+        #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        #     msg.buttonClicked.connect(msg.close)
+        #     msg.exec()
+        #     return
 
         projects_path = self.projects_path_choice.text()
+
         if not os.path.isdir(projects_path):
-            message = ("The selected path for populse_mia's projects "
-                       "must be an existing folder")
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-            msg.setText("Populse_MIA's projects path is not valid")
-            msg.setInformativeText(message)
-            msg.setWindowTitle("Warning")
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msg.buttonClicked.connect(msg.close)
-            msg.exec()
-            return
+            # message = ("The selected path for populse_mia's projects "
+            #            "must be an existing folder")
+            # msg = QtWidgets.QMessageBox()
+            # msg.setIcon(QtWidgets.QMessageBox.Warning)
+            # msg.setText("Populse_MIA's projects path is not valid")
+            # msg.setInformativeText(message)
+            # msg.setWindowTitle("Warning")
+            # msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            # msg.buttonClicked.connect(msg.close)
+            # msg.exec()
+            # return
 
         if os.path.isdir(os.path.join(mia_path, 'populse_mia')):
             message = ('A "populse_mia" folder already exists in the selected '
