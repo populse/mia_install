@@ -657,6 +657,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         projects_path = self.projects_path_choice.text()
 
         if not os.path.isdir(projects_path):
+            pass
             # message = ("The selected path for populse_mia's projects "
             #            "must be an existing folder")
             # msg = QtWidgets.QMessageBox()
