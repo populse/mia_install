@@ -25,12 +25,8 @@ import subprocess
 import sys
 import tempfile
 import yaml
-from cryptography.fernet import Fernet
-from packaging import version
 from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
-
-CONFIG = b'5YSmesxZ4ge9au2Bxe7XDiQ3U5VCdLeRdqimOOggKyc='
 
 
 class MIAInstallWidget(QtWidgets.QWidget):
@@ -52,11 +48,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
             - install_matlab_api
             - install_package
             - last_layout
-#            - load_config
             - make_mrifilemanager_folder
-#            - make_populse_mia_folder
             - ok_or_abort
-#            - save_config
             - set_new_layout
             - uninstall_package
             - upgrade_soma_capsul
@@ -69,19 +62,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
         super().__init__()
 
         self.matlab_path = ""
-
-        # Labels
-        # self.top_label_text = ''
-        # self.top_label = QtWidgets.QLabel(self.top_label_text)
-        #
-        # self.top_label_font = QtGui.QFont()
-        # self.top_label_font.setBold(True)
-        # self.top_label.setFont(self.top_label_font)
-        #
-        # h_box_top_label = QtWidgets.QHBoxLayout()
-        # h_box_top_label.addStretch(1)
-        # h_box_top_label.addWidget(self.top_label)
-        # h_box_top_label.addStretch(1)
+        self.top_label_font = QtGui.QFont()
+        self.top_label_font.setBold(True)
 
         self.middle_label_text = ("Please select a configuration installation "
                                   "path, a folder to store the projects and "
@@ -425,7 +407,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.spm_standalone_choice.setText(fname)
 
     def btnstate(self, button):
-
         if button.text() == "Casa_Distro":
 
             if button.isChecked() == True:
@@ -470,9 +451,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
                 else:
                     return_value = ""
 
-        # except Exception as e:
         except Exception:
-            # print('\n{0}: {1}\n'.format(e.__class__, e))
             print("\nThe matlab path could not be determined "
                   "automatically ...\n")
             pass
@@ -663,28 +642,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
                     )
                 )
 
-        #########################
-        # dot_mia_path = os.path.join(os.path.expanduser('~'), '.populse_mia')
-        #
-        # if not os.path.isdir(dot_mia_path):
-        #     os.mkdir(dot_mia_path)
-        #
-        # # Checking that the specified paths are correct
-        # mia_path = self.mia_config_path_choice.text()
-        #
-        # if not os.path.isdir(mia_path):
-        #     message = ("The selected path for populse_mia must be "
-        #                "an existing folder")
-        #     msg = QtWidgets.QMessageBox()
-        #     msg.setIcon(QtWidgets.QMessageBox.Warning)
-        #     msg.setText("Populse_MIA path is not valid")
-        #     msg.setInformativeText(message)
-        #     msg.setWindowTitle("Warning")
-        #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        #     msg.buttonClicked.connect(msg.close)
-        #     msg.exec()
-        #     return
-
         # project folder management / initialisation:
         projects_path = os.path.join(self.projects_path_choice.text(),
                                      "projects_mia")
@@ -734,41 +691,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
                         print('Failed to delete {0}. Reason: {1}'.format(
                             elmt_path, e))
 
-
-            # message = ("The selected path for populse_mia's projects "
-            #            "must be an existing folder")
-            # msg = QtWidgets.QMessageBox()
-            # msg.setIcon(QtWidgets.QMessageBox.Warning)
-            # msg.setText("Populse_MIA's projects path is not valid")
-            # msg.setInformativeText(message)
-            # msg.setWindowTitle("Warning")
-            # msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            # msg.buttonClicked.connect(msg.close)
-            # msg.exec()
-            # return
-
-        # if os.path.isdir(os.path.join(mia_path, 'populse_mia')):
-        #     message = ('A "populse_mia" folder already exists in the selected '
-        #                'path for the populse_mia install')
-        #     self.msg = QtWidgets.QMessageBox()
-        #     self.msg.setIcon(QtWidgets.QMessageBox.Warning)
-        #     self.msg.setText(message)
-        #     self.msg.setInformativeText('By pressing "OK", this folder and its '
-        #                                 'content will be removed.')
-        #     self.msg.setWindowTitle("Warning")
-        #     self.msg.setStandardButtons(QtWidgets.QMessageBox.Ok |
-        #                                 QtWidgets.QMessageBox.Cancel)
-        #     self.msg.buttonClicked.connect(self.ok_or_abort)
-        #     self.msg.exec()
-
-        # If the user has clicked on "Cancel" the installation is aborted
-        # if self.folder_exists_flag:
-        #     return
-        #
-        # else:
-        #     shutil.rmtree(os.path.join(mia_path, 'populse_mia'),
-        #                   ignore_errors=True)
-
         # MRIFileManager folder management / initialisation:
         mri_conv_dir = os.path.join(properties_path, 'mri_conv')
 
@@ -794,35 +716,17 @@ class MIAInstallWidget(QtWidgets.QWidget):
         else:
             shutil.rmtree(mri_conv_dir, ignore_errors=True)
 
-
-
         self.properties_dir = os.path.abspath(properties_dir)
         self.projects_save_path = os.path.abspath(projects_path)
         self.mri_conv_path = os.path.abspath(mri_conv_dir)
 
         self.set_new_layout()
 
-        # # Creating a "projects" folder in the specified projects folder
-        # if not os.path.isdir(os.path.join(projects_path, 'projects')):
-        #
-        #     try:
-        #         os.mkdir(os.path.join(projects_path, 'projects'))
-        #
-        #     except OSError as e:
-        #         print('Error creating the "projects" folder: ', e)
-
-        # Creates populse_mia folder to the specified location
-        # populse_mia_folder = os.path.join(mia_path, 'populse_mia')
-        # self.make_populse_mia_folder(populse_mia_folder)
-
         # Updating the checkbox
         self.check_box_mia.setChecked(True)
         QtWidgets.QApplication.processEvents()
 
         # # Moving MRIFileManager folder to the specified location
-        # self.copy_directory('MRIFileManager',
-        #                     os.path.join(mia_path, 'MRIFileManager'))
-
         self.make_mrifilemanager_folder(mri_conv_dir)
 
         # Clone MiaResources
@@ -857,39 +761,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.check_box_mri_conv.setChecked(True)
         QtWidgets.QApplication.processEvents()
 
-        # Adding both mia, MRIFileManager and projects paths to
-        # populse_mia's config
-        # config_file = os.path.join(mia_path,
-        #                            'populse_mia',
-        #                            'properties',
-        #                            'config.yml')
-        # if os.path.isfile(config_file):
-        #     config_dic = self.load_config(config_file)
-        #     config_dic["projects_save_path"] = os.path.join(projects_path,
-        #                                                     'projects')
-        #     config_dic["resources_path"] = os.path.join(mia_path,
-        #                                                 'MiaResources')
-        #     config_dic["mri_conv_path"] = os.path.join(mia_path,
-        #                                                'MRIFileManager',
-        #                                                'MRIManager.jar')
-        #     config_dic["clinical_mode"] = use_clinical_mode
-        #     config_dic["use_matlab"] = use_matlab
-        #     config_dic["matlab"] = matlab
-        #     config_dic["matlab_standalone"] = matlab_standalone
-        #     config_dic["use_spm"] = use_spm
-        #     config_dic["spm"] = spm
-        #     config_dic["use_spm_standalone"] = use_spm_standalone
-        #     config_dic["spm_standalone"] = spm_standalone
-        #     self.save_config(config_dic, config_file, fernet=True)
-        #
-        # else:
-        #     print('\nWarning! No {} file found ...\n'.format(config_file))
-
-
         # Adding properties_user_path to dot_mia_config file
         mia_home_properties_path_new["properties_user_path"] = os.path.dirname(properties_path)
-
-
         mia_home_properties_path = {
                 **mia_home_properties_path,
                 **mia_home_properties_path_new,
@@ -918,10 +791,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
         config.set_spm_path(spm)
         config.set_use_spm_standalone(use_spm_standalone)
         config.set_spm_standalone_path(spm_standalone)
-
-
-        # self.save_config(home_config, os.path.join(dot_mia_path,
-        #                                            'configuration.yml'))
 
         # Updating the checkbox
         self.check_box_config.setChecked(True)
@@ -1028,29 +897,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         QtWidgets.QApplication.processEvents()
 
-    # @staticmethod
-    # def load_config(config_file):
-    #     f = Fernet(CONFIG)
-    #
-    #     with open(config_file, 'rb') as stream:
-    #
-    #         try:
-    #             stream = b"".join(stream.readlines())
-    #             decrypted = f.decrypt(stream)
-    #
-    #             if version.parse(yaml.__version__) > version.parse('5.1'):
-    #                 return yaml.load(decrypted, Loader=yaml.FullLoader)
-    #
-    #             else:
-    #                 return yaml.load(decrypted)
-    #
-    #         except yaml.YAMLError as exc:
-    #             print('error loading YAML file: %s' % config_file)
-    #             print(exc)
-    #
-    #         # in case of problem, return an empty config
-    #     return {}
-
     def make_mrifilemanager_folder(self, mri_conv_dir):
         # temp_dir = tempfile.mkdtemp()
         try:
@@ -1062,23 +908,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
             print('\n{}...'.format(e))
             return
 
-        # try:
-        #     shutil.copytree(os.path.join(temp_dir, 'mri_conv',
-        #                                  'MRIFileManager'),
-        #                     os.path.join(mia_path, 'MRIFileManager'))
-        #
-        #     # Directories are the same
-        # except shutil.Error as e:
-        #     print('Directory not copied. Error: %s' % e)
-        #
-        # # Any error saying that the directory doesn't exist
-        # except OSError as e:
-        #     print('Directory not copied. Error: %s' % e)
-        #
-        # shutil.rmtree(temp_dir, ignore_errors=True)
-
     def clone_miaResources(self, miaresources_dir):
-#        temp_dir = tempfile.mkdtemp()
+
         try:
             subprocess.call(['git', 'clone',
                             'https://gricad-gitlab.univ-grenoble-alpes.fr/condamie/miaresources.git',
@@ -1088,47 +919,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
             print('\n{}...'.format(e))
             return
 
-
-        # try:
-        #     shutil.copytree(os.path.join(temp_dir, 'MiaResources'),
-        #                     os.path.join(mia_path, 'MiaResources'))
-        #
-        # # Directories are the same
-        # except shutil.Error as e:
-        #     print('Directory not copied. Error: %s' % e)
-        #
-        # # Any error saying that the directory doesn't exist
-        # except OSError as e:
-        #     print('Directory not copied. Error: %s' % e)
-        #
-        # shutil.rmtree(temp_dir, ignore_errors=True)
-
-    # def make_populse_mia_folder(self, populse_mia_folder):
-    #     os.makedirs(os.path.join(populse_mia_folder, 'processes',
-    #                              'User_processes'))
-    #     Path(os.path.join(populse_mia_folder, 'processes',
-    #                       'User_processes', '__init__.py')).touch()
-    #
-    #     os.makedirs(os.path.join(populse_mia_folder, 'properties'))
-    #     saved_projects = {'paths': []}
-    #     self.save_config(saved_projects,
-    #                      os.path.join(populse_mia_folder, 'properties',
-    #                                   'saved_projects.yml'),
-    #                      fernet=False)
-    #     self.save_config('gAAAAABd79UO5tVZSRNqnM5zzbl0KDd7Y98KCSKCNizp9aDqADs9'
-    #                      'dAQHJFbmOEX2QL_jJUHOTBfFFqa3OdfwpNLbvWNU_rR0VuT1Zdlm'
-    #                      'TYv4wwRjhlyPiir7afubLrLK4Jfk84OoOeVtR0a5a0k0WqPlZl-y'
-    #                      '8_Wu4osHeQCfeWFKW5EWYF776rWgJZsjn3fxZ-V2g5aHo-Q5aqYi'
-    #                      '2V1Kc-kQ9ZwjFBFbXNa1g9nHKZeyd3ve6p3RUSELfUmEhS0eOWn8'
-    #                      'i-7GW1UGa4zEKCsoY6T19vrimiuRVy-DTmmgzbbjGkgmNxB5MvEz'
-    #                      's0BF2bAcina_lKR-yeICuIqpTSOBfgkTDcB0LVPBoQmogUVVTeCr'
-    #                      'jYH9_llFTJQ3ZtKZLdeStFR5Y2I2ZkQETi6m-0wmUDKf-KRzmk6s'
-    #                      'LRK_oz6Gmu'
-    #                      'TAN8A51au2v1M=', os.path.join(populse_mia_folder,
-    #                                                     'properties',
-    #                                                     'config.yml'),
-    #                      fernet=False)
-
     def ok_or_abort(self, button):
         role = self.msg.buttonRole(button)
 
@@ -1137,19 +927,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         else:
             self.folder_exists_flag = True
-
-    # @staticmethod
-    # def save_config(config_dic, config_file, fernet=False):
-    #     if fernet is True:
-    #         f = Fernet(CONFIG)
-    #         with open(config_file, 'wb') as configfile:
-    #             stream = yaml.dump(config_dic, default_flow_style=False,
-    #                                allow_unicode=True)
-    #             configfile.write(f.encrypt(stream.encode()))
-    #     else:
-    #         with open(config_file, 'w', encoding='utf8') as configfile:
-    #             yaml.dump(config_dic, configfile, default_flow_style=False,
-    #                       allow_unicode=True)
 
     def set_new_layout(self):
         """Changing the layout to a temporary widget.

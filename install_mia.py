@@ -19,10 +19,12 @@ of mia.
 ###############################################################################
 
 import importlib
+import os
 import subprocess
 import sys
 
-
+# We use this module only im user mode.
+os.environ["MIA_DEV_MODE"] = "0"
 def install_package(package):
     """Install the package if it is not already installed
 
