@@ -28,7 +28,12 @@ import yaml
 from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-
+###############################################################################
+# Currently in host installation, we make installation from sources for capsul,
+# soma-base and soma-workflow.
+# We'll have to switch to using pypi for these packages when master will be on
+# V3 in populse.
+###############################################################################
 class MIAInstallWidget(QtWidgets.QWidget):
     """The main class for mia's installation and configuration.
 
@@ -79,18 +84,21 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         # Groupbox
         self.groupbox = QtWidgets.QGroupBox()
-        self.mia_config_path_label = QtWidgets.QLabel("Mia configuration path:")
+        self.mia_config_path_label = QtWidgets.QLabel(
+                                                     "Mia configuration path:")
         self.mia_config_path_choice = QtWidgets.QLineEdit(os.path.join(
                                                     os.path.expanduser('~'),
                                                     '.populse_mia')
                                )
         self.mia_config_path_browse = QtWidgets.QPushButton("Browse")
-        self.mia_config_path_browse.clicked.connect(self.browse_mia_config_path)
+        self.mia_config_path_browse.clicked.connect(
+                                                   self.browse_mia_config_path)
 
         self.mia_config_path_info = QtWidgets.QPushButton(" ? ")
         self.mia_config_path_info.setFixedHeight(27)
         self.mia_config_path_info.setFixedWidth(27)
-        self.mia_config_path_info.setStyleSheet("background-color:rgb(150,150,200)")
+        self.mia_config_path_info.setStyleSheet(
+                                           "background-color:rgb(150,150,200)")
         rect = QtCore.QRect(4, 4, 17, 17)
         region = QtGui.QRegion(rect, QtGui.QRegion.Ellipse)
         self.mia_config_path_info.setMask(region)
@@ -150,10 +158,10 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.groupbox.setLayout(v_box_paths)
 
         # Installation target groupbox
-        self.install_target_group_box = QtWidgets.QGroupBox('Installation target:')
+        self.install_target_group_box = QtWidgets.QGroupBox(
+                                                        'Installation target:')
 
-        self.casa_target_push_button = QtWidgets.QRadioButton(
-            'Casa_Distro')
+        self.casa_target_push_button = QtWidgets.QRadioButton('Casa_Distro')
         self.casa_target_push_button.toggled.connect(
             lambda: self.btnstate(self.casa_target_push_button))
         self.host_target_push_button = QtWidgets.QRadioButton(
@@ -201,7 +209,6 @@ class MIAInstallWidget(QtWidgets.QWidget):
         h_box_buttons.addWidget(self.push_button_cancel)
 
         # Matlab and SPM12 groupboxes
-
         # Groupbox "Matlab"
         self.groupbox_matlab = QtWidgets.QGroupBox("Matlab")
         self.use_matlab_label = QtWidgets.QLabel("Use Matlab")
@@ -373,7 +380,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
     def browse_mia_config_path(self):
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            'Select a folder where to install Populse_MIA',
+            'Select a folder where to install Mia configuration',
             os.path.expanduser('~'))
 
         if folder_name:
@@ -382,7 +389,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
     def browse_projects_path(self):
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            "Select a folder where to store Populse_MIA's projects",
+            "Select a folder where to store Mia's projects",
             os.path.expanduser('~'))
 
         if folder_name:
@@ -762,7 +769,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
 
         # Adding properties_user_path to dot_mia_config file
-        mia_home_properties_path_new["properties_user_path"] = os.path.dirname(properties_path)
+        mia_home_properties_path_new["properties_user_path"] = os.path.dirname(
+                                                               properties_path)
         mia_home_properties_path = {
                 **mia_home_properties_path,
                 **mia_home_properties_path_new,
