@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*- #
 """The first module used during mia's installation.
 
-Basically, this module is dedicated to the initialisation of the basic
-parameters and the various checks necessary for a successful installation
-of mia.
+This module is responsible for initializing core parameters and conducting
+essential checks to ensure a successful installation of Mia. It sets up
+configurations, verifies system compatibility, and manages dependencies
+to establish a stable environment for the application.
 
 :Contains:
     :Function:
-        - install_package
+        - install_and_import
 """
 
 ###############################################################################
@@ -26,87 +27,110 @@ import sys
 # We use this module only in user mode.
 os.environ["MIA_DEV_MODE"] = "0"
 
-def install_package(package):
-    """Install the package if it is not already installed
+def install_and_import(module_name):
+    """Tries to import the specified module.
 
-     Careful: "pyyaml" in the PyPi world but "yaml" in the Python world.
+    If the module is not found, it installs the module using pip and then
+    imports it.
+    If running inside a virtual environment, it installs the module there; 
+    otherwise, it adds the '--user' flag for a user-level installation.
+
+    Args:
+        module_name (str): The name of the module to import or install.
+
+    Raises:
+        subprocess.CalledProcessError: If the pip installation fails.
+        ImportError: If the module cannot be imported even after installation.
+    
+    Example:
+        install_and_import('pyyaml')
+        install_and_import('requests')
+
+    Note:
+        Some module names differ between PyPi and Python import names, 
+        such as "pyyaml" (PyPi) vs. "yaml" (Python).
     """
+    import_name = 'yaml' if module_name == 'pyyaml' else module_name
+
     try:
-
-        if package == 'pyyaml':
-            importlib.import_module('yaml')
-
-        else:
-            importlib.import_module(package)
+        # Try to import the module
+        importlib.import_module(import_name)
 
     except ImportError:
-        subprocess.call([sys.executable,
-                         '-m', 'pip', 'install',
-                         '--user', package])
+        # Module not found, install it
+        print(f"{module_name} not found. Installing...")
+        
+        # Check if running in a virtual environment
+        is_venv = sys.prefix != sys.base_prefix
+        pip_install_command = [sys.executable,
+                               '-m',
+                               'pip',
+                               'install',
+                               module_name]
+        
+        # Add '--user' flag only if not in a virtual environment
+        if not is_venv:
+            pip_install_command.insert(4, '--user')
+        
+        subprocess.check_call(pip_install_command)
+        
+        # Try to import the module again after installation
+        try:
+            importlib.import_module(import_name)
+            
+        except ImportError:
+            raise ImportError(f"Failed to import {module_name} after "
+                              f"installation.")
 
 if __name__ == '__main__':
     print('Please wait, installation in progress! ...\n')
-    install_package('PyQt5')
-    install_package('pyyaml')
-    install_package('packaging')
-    install_package('cryptography')
+    # List of required packages
+    packages = ['PyQt5', 'pyyaml', 'packaging', 'cryptography']
 
-    try:
-        import yaml
+    for package in packages:
 
-    except ImportError:  # giving a last chance to install pyyaml
-        subprocess.call([sys.executable,
-                         '-m', 'pip', 'install',
-                         '--user', 'pyyaml'])
+        try:
+            install_and_import(package)
+        
+        except subprocess.CalledProcessError:
+            print(f"Failed to install {package}. Please check your "
+                  f"pip installation.")
 
-    try:
-        from PyQt5 import QtWidgets
+        except ImportError:
+            print(f"Could not import {package} after installation. "
+                  "Please check compatibility or try reinstalling manually.")
 
-    except ImportError:  # giving a last chance to install PyQt5
-        subprocess.call([sys.executable,
-                         '-m', 'pip', 'install',
-                         '--user', 'PyQt5'])
+    # Clear specific packages from sys.modules to avoid conflicts
+    for key in list(sys.modules):
 
-    # Removing packages from the sys modules to avoid conflicts
-    keys2remove = []
-
-    for key in sys.modules.keys():
-
-        if key.startswith('PyQt5'):
-            keys2remove.append(key)
-
-    for key in keys2remove:
-        del sys.modules[key]
-
-    if 'yaml' in sys.modules.keys():
-        del sys.modules['yaml']
-
-    if 'packaging' in sys.modules.keys():
-        del sys.modules['packaging']
-
-    if 'cryptography' in sys.modules.keys():
-        del sys.modules['cryptography']
+        if key.startswith("PyQt5") or key in {"yaml",
+                                              "packaging",
+                                              "cryptography"}:
+            del sys.modules[key]
 
     try:
         from PyQt5 import QtWidgets
         import yaml, packaging, crypt
-        # FIXME: crypt to be replaced by legacycrypt, bcrypt, argon2-cffi,
-        #        hashlib,and passlib, in python 3.13
+        # FIXME: Replace 'crypt' with updated libraries like legacycrypt,
+        #        bcrypt, argon2-cffi, hashlib, and passlib when upgrading
+        #        to Python 3.13
 
-        # If the packages needed for MIAInstallWidget are installed, we
-        # can now import MIAInstallWidget
+         # Import MIAInstallWidget after confirming dependencies
         from mia_install_widget import MIAInstallWidget
 
     except ImportError as e:
-        sys.exit('\n{}...\n\nPython package environment has not been correctly '
-                 'updated!\n\nPlease relaunch the following command:\n    '
-                 'python3 install_mia.py\n\nIf the issue persists try to '
-                 'install the problematic module by hand.\n'.format(e))
-
+        sys.exit(
+            f"\n{e}...\n\nPython package environment was not correctly "
+            "updated!\n\nPlease retry by running:\n    python3 install_mia.py"
+            "\n\nIf the issue persists, try manually installing the "
+            "problematic module.\n"
+        )
+        
+    # Initialize and display Mia installation widget
     app = QtWidgets.QApplication(sys.argv)
     mia_install_widget = MIAInstallWidget()
 
-    # Setting the window to the middle of the screen
+    # Center widget on screen
     frame_gm = mia_install_widget.frameGeometry()
     screen = QtWidgets.QApplication.desktop().screenNumber(
                             QtWidgets.QApplication.desktop().cursor().pos())

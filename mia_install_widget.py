@@ -64,8 +64,10 @@ class MIAInstallWidget(QtWidgets.QWidget):
     """
 
     def __init__(self):
+        """Constructor"""
         super().__init__()
-
+        # Check if running in a virtual environment
+        self.is_venv = sys.prefix != sys.base_prefix
         self.matlab_path = ""
         self.top_label_font = QtGui.QFont()
         self.top_label_font.setBold(True)
@@ -360,6 +362,21 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.use_spm_standalone_changed)
 
     def browse_matlab(self):
+        """
+        Opens a file dialog for the user to select a MATLAB executable file.
+
+        This method presents a file selection dialog to the user, allowing
+        them to choose the MATLAB executable file from their file system.
+        If a file is selected, the file path is displayed in the
+        `matlab_choice` widget.
+
+        Behavior:
+            - Opens a `QFileDialog` for file selection with the title
+              'Choose Matlab executable file'.
+            - The dialog starts in the user's home directory.
+            - If the user selects a file, sets the `matlab_choice` widget
+              text to the selected file path.
+        """
         fname = QtWidgets.QFileDialog.getOpenFileName(
             self,
             'Choose Matlab executable file',
@@ -369,6 +386,23 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.matlab_choice.setText(fname)
 
     def browse_matlab_standalone(self):
+        """
+        Opens a directory dialog for the user to select the MATLAB Compile
+        Runtime (MCR) directory.
+
+        This method opens a directory selection dialog, allowing the user
+        to choose the folder where the MATLAB Compiler Runtime (MCR) is
+        installed. If a directory is selected, the path is displayed in
+        the `matlab_standalone_choice` widget.
+
+        Behavior:
+            - Opens a `QFileDialog` for directory selection with the title
+              'Choose MCR directory'.
+            - The dialog starts in the user's home directory.
+            - If the user selects a directory, sets the
+              `matlab_standalone_choice` widget text to the selected
+              directory path.
+        """
         fname = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose MCR directory',
@@ -378,6 +412,22 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.matlab_standalone_choice.setText(fname)
 
     def browse_mia_config_path(self):
+        """
+        Opens a directory dialog for the user to select a folder for
+        installing the MIA configuration.
+
+        This method displays a dialog that allows the user to choose a
+        directory in which the MIA configuration files will be installed.
+        If a directory is selected, its path is displayed in the
+        `mia_config_path_choice` widget.
+
+        Behavior:
+            - Opens a `QFileDialog` for directory selection with the title 
+              'Select a folder where to install Mia configuration'.
+            - Starts the dialog in the user's home directory.
+            - If a directory is selected, updates the `mia_config_path_choice`
+              widget text with the selected directory path.
+        """
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Select a folder where to install Mia configuration',
@@ -387,6 +437,22 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.mia_config_path_choice.setText(folder_name)
 
     def browse_projects_path(self):
+        """
+        Opens a directory dialog for the user to select a folder to store
+        Mia's projects.
+
+        This method opens a directory selection dialog, allowing the user
+        to choose a folder where Mia's projects will be stored. If a folder
+        is selected, its path is displayed in the `projects_path_choice`
+        widget.
+
+        Behavior:
+            - Opens a `QFileDialog` for directory selection with the title 
+              "Select a folder where to store Mia's projects".
+            - Starts the dialog in the user's home directory.
+            - If a directory is selected, updates the `projects_path_choice`
+              widget text with the selected folder path.
+        """
         folder_name = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             "Select a folder where to store Mia's projects",
@@ -396,6 +462,22 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.projects_path_choice.setText(folder_name)
 
     def browse_spm(self):
+        """
+        Opens a directory dialog for the user to select the SPM (Statistical
+        Parametric Mapping) directory.
+
+        This method displays a directory selection dialog, allowing the user
+        to choose the folder where the SPM software is installed. If a
+        directory is selected, its path is displayed in the `spm_choice`
+        widget.
+
+        Behavior:
+            - Opens a `QFileDialog` for directory selection with the title
+              'Choose SPM directory'.
+            - Starts the dialog in the user's home directory.
+            - If a directory is selected, updates the `spm_choice` widget
+              text with the selected directory path.
+        """
         fname = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose SPM directory',
@@ -405,6 +487,23 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.spm_choice.setText(fname)
 
     def browse_spm_standalone(self):
+        """
+        Opens a directory dialog for the user to select the SPM (Statistical
+        Parametric Mapping) standalone directory.
+
+        This method opens a directory selection dialog, allowing the user
+        to choose the folder where the standalone version of SPM is installed. 
+        If a directory is selected, its path is displayed in the
+        `spm_standalone_choice` widget.
+
+        Behavior:
+            - Opens a `QFileDialog` for directory selection with the title
+              'Choose SPM standalone directory'.
+            - Starts the dialog in the user's home directory.
+            - If a directory is selected, updates the `spm_standalone_choice`
+              widget text with the selected directory path.
+        """
+   
         fname = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose SPM standalone directory',
@@ -414,6 +513,29 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.spm_standalone_choice.setText(fname)
 
     def btnstate(self, button):
+        """
+        Toggles the state of two related buttons based on the text of the
+        clicked button.
+
+        This method manages the state of two buttons
+        (`host_target_push_button` and `casa_target_push_button`) based on
+        the text of the button that is clicked. If the button text is
+        'Casa_Distro', it ensures that the `host_target_push_button` is
+        unchecked when the button is checked and vice versa. If the button
+        text is 'Host', it ensures that the `casa_target_push_button` is
+        unchecked when the button is checked and vice versa.
+
+        Args:
+            button (QtWidgets.QPushButton): The button that was clicked to
+                                            trigger the state change.
+
+        Behavior:
+            - If the clicked button's text is "Casa_Distro", toggles the
+              state of the `host_target_push_button`.
+            - If the clicked button's text is "Host", toggles the state of
+              the `casa_target_push_button`.
+            - Ensures that when one button is checked, the other is unchecked.
+        """
         if button.text() == "Casa_Distro":
 
             if button.isChecked() == True:
@@ -431,6 +553,34 @@ class MIAInstallWidget(QtWidgets.QWidget):
                 self.casa_target_push_button.setChecked(True)
 
     def find_matlab_path(self):
+        """
+        Attempts to find the installation path of MATLAB on the system.
+
+        This method tries to locate the MATLAB installation by running the
+        `matlab` command with specific options to retrieve the root directory
+        of MATLAB. It checks if the path is valid and whether the MATLAB
+        executable (`matlab` or `matlab.exe`) exists in the 'bin' directory
+        under the root directory. If the executable is found, it returns the 
+        full path to the MATLAB executable.
+
+        If MATLAB cannot be found or an error occurs during the process, an
+        empty string is returned.
+
+        Returns:
+            str: The path to the MATLAB executable if found, otherwise an
+                 empty string.
+
+        Behavior:
+            - Runs the MATLAB command
+            `matlab -nodisplay -nosplash -nodesktop -r 'disp(matlabroot);exit'`
+            to obtain the root installation directory.
+            - Checks for the existence of the MATLAB executable (`matlab` or
+            `matlab.exe`) under the `bin` folder.
+            - Returns the full path to the executable if found, or an empty
+            string if not.
+            - In case of an exception (e.g., MATLAB is not installed), prints
+            a message and returns an empty string.
+        """
         return_value = ""
 
         try:
@@ -441,32 +591,73 @@ class MIAInstallWidget(QtWidgets.QWidget):
             valid_lines = [line for line in out_split if os.path.isdir(line)]
 
             if len(valid_lines) == 1:
-                return_value = os.path.join(valid_lines[0].decode('ascii'),
-                                            'bin', 'matlab')
+                matlab_p = valid_lines[0].decode('utf-8')
+                return_v_linux = os.path.join(matlab_p, 'bin', 'matlab')
+                return_v_windows = os.path.join(matlab_p, 'bin', 'matlab.exe')
 
-                if os.path.isfile(os.path.join(valid_lines[0].decode('ascii'),
-                                               'bin', 'matlab')):
-                    self.matlab_path = valid_lines[0].decode('ascii')
-                    return_value = os.path.join(valid_lines[0].decode('ascii'),
-                                                'bin', 'matlab')
+                if os.path.isfile(return_v_linux):
+                    self.matlab_path = matlab_p
+                    return_value = return_v_linux
 
-                elif os.path.isfile(os.path.join(valid_lines[0].decode('ascii'),
-                                                 'bin', 'matlab.exe')):
-                    self.matlab_path = valid_lines[0].decode('ascii')
-                    return_value = os.path.join(valid_lines[0].decode('ascii'),
-                                                'bin', 'matlab.exe')
-                else:
-                    return_value = ""
+                elif os.path.isfile(return_v_windows):
+                    self.matlab_path = matlab_p
+                    return_value = return_v_windows
 
-        except Exception:
-            print("\nThe matlab path could not be determined "
-                  "automatically ...\n")
-            pass
+        except Exception as e:
+            print(f"{e}\nThe matlab path could not be determined "
+                  f"automatically ...\n")
 
         return return_value
 
     def install(self):
+        """
+        Manages the installation and configuration of Mia and associated
+        software components.
 
+        This method performs the following steps:
+        1. Installs populse_mia and mia_processes from PyPi.
+        2. Checks the selected installation target (Host or Casa_Distro).
+        3. Configures the operating mode (clinical or research).
+        4. Optionally integrates with MATLAB and SPM based on user selections.
+        5. Manages the creation and initialization of necessary directories and
+           configuration files:
+            - Creates the directory ~/.populse_mia if it does not exist and
+              ensures the presence of configuration files.
+            - Initializes user-specific directories for properties, processes,
+              and projects.
+            - Manages MRI conversion directories and resources.
+        6. Prompts the user with warnings and asks for confirmation before
+           overwriting existing directories if necessary.
+        7. Clones required repositories (MRI conversion tools and
+           miaresources).
+        8. Updates the configuration file with new paths and settings.
+        9. Optionally upgrades packages (soma-base, soma-workflow, capsul) if
+           the Host installation target is selected.
+        10. Finalizes the installation and updates the GUI with the
+            installation status.
+
+        The method requires user input via checkboxes and buttons to configure
+        various aspects of the installation.
+
+        Attributes:
+            - `host_target_push_button`: Defines whether the host target
+              installation is selected.
+            - `clinical_mode_push_button`: Defines whether the clinical mode
+              is selected.
+            - `use_matlab_checkbox`: Defines whether MATLAB integration is
+              enabled.
+            - `use_spm_checkbox`: Defines whether SPM integration is enabled.
+            - `use_spm_standalone_checkbox`: Defines whether standalone SPM
+              integration is enabled.
+            - `mia_config_path_choice`: Path for the configuration directory.
+            - `projects_path_choice`: Path for the projects directory.
+            - `check_box_mia`, `check_box_mri_conv`, `check_box_config`,
+              `check_box_pkgs`: GUI elements for status display.
+
+        Raises:
+            - Exception: If any unexpected issues arise during the directory
+                         creation or software installation steps.
+        """
         # Installing Populse_mia and mia_processes from pypi
         self.install_package('populse_mia')
 
@@ -733,8 +924,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.check_box_mia.setChecked(True)
         QtWidgets.QApplication.processEvents()
 
-        # # Moving MRIFileManager folder to the specified location
-        self.make_mrifilemanager_folder(mri_conv_dir)
+        # Clones the MRI conversion repository into the specified directory
+        mriconv = self.make_mrifilemanager_folder(mri_conv_dir)
 
         # Clone MiaResources
         miaresources_dir = os.path.join(properties_path, 'miaresources')
@@ -762,7 +953,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         else:
             shutil.rmtree(miaresources_dir, ignore_errors=True)
 
-        self.clone_miaResources(miaresources_dir)
+        miares = self.clone_miaResources(miaresources_dir)
 
         # Updating the checkbox
         self.check_box_mri_conv.setChecked(True)
@@ -805,7 +996,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
 
         # Upgrading soma-base, soma_worflow and capsul: we don't know if these
-        # packages are uptodate
+        # packages are up to date in pypi
         if host_target_install:
             self.upgrade_soma_capsul()
 
@@ -823,27 +1014,114 @@ class MIAInstallWidget(QtWidgets.QWidget):
         self.last_layout()
 
     def install_matlab_api(self):
-        pass
-        # TODO: find a way to get the admin rights
-        """cur_dir = os.getcwd()
-        try:
-            if self.matlab_path:
-                os.chdir(os.path.join(self.matlab_path, 'extern', 'engines', 'python'))
-                subprocess.call([sys.executable, 'setup.py', 'install'])
-                os.chdir(cur_dir)
-        except:
-            os.chdir(cur_dir)"""
+        """
+        Installs the MATLAB Engine API for Python.
 
-    @staticmethod
-    def install_package(package):
-        subprocess.call([sys.executable, '-m', 'pip', 'install', '--user',
-                         '--upgrade', package])
+        This method attempts to install the MATLAB Engine API by calling
+        `pip install .` in the MATLAB `extern/engines/python` directory.
+        It temporarily changes the working directory to execute the
+        installation command and then restores the directory.
+
+        Notes:
+            - `self.matlab_path` must be set to the MATLAB installation path.
+            - This method uses `subprocess.check_call()` to run `pip install .`
+              for compatibility with virtual environments.
+
+        Returns:
+            bool: True if the installation succeeds, False otherwise.
+
+        Raises:
+            - FileNotFoundError: If the MATLAB installation path is invalid.
+            - subprocess.CalledProcessError: If the installation command fails.
+    """
+        
+        if not os.path.isdir(self.matlab_path):
+            raise FileNotFoundError(f"The specified MATLAB path "
+                                    f"'{self.matlab_path}' is invalid.")
+        
+        matlab_engine_path = os.path.join(self.matlab_path, 'extern',
+                                          'engines', 'python')
+
+        if not os.path.isdir(matlab_engine_path):
+            raise FileNotFoundError(f"MATLAB Engine API directory not found "
+                                    f"at '{matlab_engine_path}'.")
+
+        original_dir = os.getcwd()
+        pip_install_command = [sys.executable, '-m', 'pip', 'install', '.']
+
+        if not self.is_venv:
+            pip_install_command.append('--user')
+
+        try:
+            print("Starting MATLAB Engine API installation...")
+            os.chdir(matlab_engine_path)
+            # Install the package with pip
+            subprocess.check_call(pip_install_command)
+            print("MATLAB Engine API installation completed successfully.")
+            return True
+
+        except subprocess.CalledProcessError as e:
+            print(f"Installation failed: {e}")
+            return False
+
+        finally:
+            os.chdir(original_dir)
+
+    def install_package(self, package):
+        """
+        Installs or upgrades a Python package using pip.
+
+        This method constructs a pip command to install or upgrade a
+        specified package.
+        It checks if the current environment is a virtual environment
+        and, if not, adds the `--user` flag to the command to install
+        the package for the current user. 
+
+        The method executes the command using `subprocess.check_call()`
+        to ensure that the package is installed or upgraded successfully.
+
+        Args:
+            package (str): The name of the package to be installed or upgraded.
+
+        Raises:
+            subprocess.CalledProcessError: If the pip installation
+                                           command fails.
+        """
+        pip_install_command = [sys.executable,
+                               '-m',
+                               'pip',
+                               'install',
+                               '--upgrade',
+                               package]
+
+        # Add '--user' flag only if not in a virtual environment
+        if not self.is_venv:
+            pip_install_command.insert(4, '--user')
+        
+        subprocess.check_call(pip_install_command)
 
     def last_layout(self):
-        """Changing the layout to a temporary widget.
-
-        Final layout after Mia installation
         """
+        Sets the final layout for the application window after Mia installation.
+
+        This method constructs and sets the final user interface layout after
+        the successful installation of Mia.
+        It displays information about the installation paths and operating
+        mode, along with a command to launch the application.
+        Additionally, it provides a "Quit" button for the user to exit
+        the window.
+
+        The layout includes the following elements:
+            - A label confirming that Mia has been installed.
+            - Paths for the Mia configuration, project storage
+              MRI conversion, and Mia resources.
+            - The operating mode used for the installation.
+            - Command lines to launch Populse_MIA depending on the Python setup.
+            - A "Quit" button to close the application.
+
+        It ensures that all widgets and layouts are properly added to the
+        window, and that the layout is set as the main layout of the window.
+    """
         QtWidgets.QWidget().setLayout(self.v_box_install_status)
 
         # Setting a new layout
@@ -856,7 +1134,8 @@ class MIAInstallWidget(QtWidgets.QWidget):
         h_box_top_label.addWidget(self.mia_installed_label)
         h_box_top_label.addStretch(1)
 
-        mia_label_text = "- Mia configuration path: {0}".format(self.properties_dir)
+        mia_label_text = "- Mia configuration path: {0}".format(
+            self.properties_dir)
         projects_label_text = "- projects path: {0}".format(
             self.projects_save_path)
         mri_conv_label_text = "- MRIFileManager path: {0}".format(
@@ -906,28 +1185,99 @@ class MIAInstallWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
 
     def make_mrifilemanager_folder(self, mri_conv_dir):
-        # temp_dir = tempfile.mkdtemp()
+        """
+        Clones the MRI conversion repository into the specified directory.
+    
+        Args:
+            mri_conv_dir (str): The directory where the repository will
+                                 be cloned.
+    
+        Returns:
+            bool: True if cloning succeeds, False otherwise.
+        """
         try:
-            subprocess.call(['git', 'clone',
-                            'https://github.com/populse/mri_conv.git',
-                            mri_conv_dir])
+            subprocess.check_call(['git', 'clone',
+                                   'https://github.com/populse/mri_conv.git',
+                                   mri_conv_dir])
+            return True
+
+        except subprocess.CalledProcessError as e:
+            # Handle errors related to the git clone process
+            print(f"Git clone failed with error code {e.returncode}."
+                  f"\nError message: {e}")
+            return False
+
+        except FileNotFoundError as e:
+            # Handle cases where 'git' is not installed or not found in PATH
+            print(f"Error: 'git' command not found. Please ensure Git is "
+                  f"installed and available in your PATH ({e}).")
+            return False
 
         except Exception as e:
-            print('\n{}...'.format(e))
-            return
+            # Catch any other unforeseen errors
+            print(f"An unexpected error occurred: {e}")
+            return False
 
     def clone_miaResources(self, miaresources_dir):
+        """
+        Clones the MiaResources repository from GitLab to the
+        specified directory.
 
+        This method uses `git clone` to download the MiaResources repository
+        from the specified GitLab URL to the given local directory.
+
+        Args:
+            miaresources_dir (str): The directory where the MiaResources
+                                    repository will be cloned.
+
+        Returns:
+        bool: True if cloning succeeds, False otherwise.
+        """
         try:
-            subprocess.call(['git', 'clone',
-                            'https://gricad-gitlab.univ-grenoble-alpes.fr/condamie/miaresources.git',
-                            miaresources_dir])
+            subprocess.check_call(
+                ["git", "clone",
+                 "https://gricad-gitlab.univ-grenoble-alpes.fr/"
+                 "condamie/miaresources.git",
+                 miaresources_dir
+                 ]
+            )
+            return True
+
+        except subprocess.CalledProcessError as e:
+            # Handle errors related to the git clone process
+            print(f"Git clone failed with error code {e.returncode}."
+                  f"\nError message: {e}")
+            return False
+
+        except FileNotFoundError as e:
+            # Handle cases where 'git' is not installed or not found in PATH
+            print(f"Error: 'git' command not found. Please ensure Git is "
+                  f"installed and available in your PATH ({e}).")
+            return False
 
         except Exception as e:
-            print('\n{}...'.format(e))
-            return
+            # Catch any other unforeseen errors
+            print(f"An unexpected error occurred: {e}")
+            return False
 
     def ok_or_abort(self, button):
+        """
+        Handles the action when the user clicks a button in a message box.
+
+        This method checks the role of the clicked button.
+        If the "OK" button is clicked, it sets the `folder_exists_flag`
+        to `False`. If any other button is clicked, it sets the
+        `folder_exists_flag` to `True`.
+
+        Args:
+            button (QtWidgets.QPushButton): The button that was clicked
+            in the message box.
+
+        Modifies:
+            folder_exists_flag (bool): A flag that indicates whether the
+                                       folder exists based on the user's
+                                       response to the message box.
+    """
         role = self.msg.buttonRole(button)
 
         if role == QtWidgets.QMessageBox.AcceptRole:  # "OK" has been clicked
@@ -937,9 +1287,19 @@ class MIAInstallWidget(QtWidgets.QWidget):
             self.folder_exists_flag = True
 
     def set_new_layout(self):
-        """Changing the layout to a temporary widget.
+        """
+        Changes the layout to show the installation progress.
 
-        Last step of the installation.
+        This method sets up a temporary layout to display the progress of the 
+        installation. It includes a label indicating the installation is
+        ongoing, and checkboxes for tracking the status of various installation
+        steps, such as installing Mia, MRIFileManager, writing the config file,
+        and installing Python packages. The layout is then set as the current
+        layout for the widget.
+
+        Modifies:
+            The layout of the widget to reflect the installation status, with
+            labels and checkboxes to indicate progress.
         """
         QtWidgets.QWidget().setLayout(self.global_layout)
 
@@ -980,29 +1340,79 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
     @staticmethod
     def uninstall_package(package):
+        """
+        Uninstalls a Python package using pip.
+
+        This method attempts to uninstall a specified package using pip.
+        It first tries to use the current Python interpreter
+        (`sys.executable`) to uninstall the package. If an exception occurs
+        (e.g., if pip is not available for the current interpreter), it falls
+        back to using the `pip3` command to uninstall the package.
+
+        Args:
+            package (str): The name of the Python package to uninstall.
+
+        Raises:
+            subprocess.CalledProcessError: If the package uninstall
+            command fails.
+    """
         try:
-            subprocess.call([sys.executable, '-m', 'pip', 'uninstall',
+            subprocess.check_call([sys.executable, '-m', 'pip', 'uninstall',
                              '--yes', package])
 
         except Exception:
-            subprocess.call(['pip3', 'uninstall', '--yes', package])
+            subprocess.check_call(['pip3', 'uninstall', '--yes', package])
+
+        except subprocess.CalledProcessError:
+            print(f"Failed to uninstall {package}.")
 
     def upgrade_soma_capsul(self):
+        """
+        Upgrades the soma-base, soma-workflow, and capsul packages by cloning
+        their latest versions from GitHub and reinstalling them.
+
+        This method performs the following steps:
+            1. Creates a temporary directory to store the cloned repositories.
+            2. Uninstalls the current versions of soma-base,
+               soma-workflow, and capsul.
+            3. Clones each package's repository (soma-base,
+               soma-workflow, and capsul) from GitHub.
+            4. Installs the cloned package using the current Python
+               interpreter with `setup.py install`.
+
+        If any step fails, an error message is printed, and the process
+        continues to the next package. After the upgrades, the method
+        returns to the original working directory and deletes the
+        temporary directory.
+
+        Raises:
+            subprocess.CalledProcessError: If any command execution fails.
+        """
         temp_dir = tempfile.mkdtemp()
         cwd = os.getcwd()
+        repos = [
+            ("https://github.com/populse/soma-base.git", "soma-base"),
+            ("https://github.com/populse/soma-workflow.git", "soma-workflow"),
+            ("https://github.com/populse/capsul.git", "capsul")
+        ]
+        pip_install_command = [sys.executable, '-m', 'pip', 'install', '.']
+
+        if not self.is_venv:
+            pip_install_command.append('--user')
 
         try:
-            # Updating soma-base
-            self.uninstall_package('soma-base')
-            subprocess.call(['git', 'clone',
-                             'https://github.com/populse/soma-base.git',
-                             os.path.join(temp_dir, 'soma-base')])
-            os.chdir(os.path.join(temp_dir, 'soma-base'))
-            subprocess.call([sys.executable, 'setup.py', 'install', '--user',
-                            '--force', '--prefix='])
 
-        except:
-            print('\n\nProblem while upgrading soma-base...')
+            for repo_url, package_name in repos:
+                clone_dir = os.path.join(temp_dir, package_name)
+                self.uninstall_package(package_name)
+                subprocess.check_call(
+                    ['git', 'clone', repo_url, clone_dir]
+                )
+                os.chdir(clone_dir)
+                subprocess.check_call(pip_install_command)
+
+        except Exception as e:
+            print(f"Error while upgrading {package_name}: {e}")
 
             '''if not os.name == 'nt':  # if not on windows
                    self.uninstall_package('capsul')
@@ -1014,38 +1424,15 @@ class MIAInstallWidget(QtWidgets.QWidget):
                     subprocess.call('./upgrade_soma.sh', shell=True)
             '''
 
-        try:
-            # Updating soma-workflow
-            self.uninstall_package('soma-workflow')
-            subprocess.call(['git', 'clone',
-                             'https://github.com/populse/soma-workflow.git',
-                             os.path.join(temp_dir, 'soma-workflow')])
-            os.chdir(os.path.join(temp_dir, 'soma-workflow'))
-            subprocess.call([sys.executable, 'setup.py', 'install', '--user',
-                            '--force', '--prefix='])
-
-        except:
-            print('\n\nProblem while upgrading soma-workflow...')
-
-        try:
-            # Updating capsul
-            self.uninstall_package('capsul')
-            subprocess.call(['git', 'clone',
-                             'https://github.com/populse/capsul.git',
-                             os.path.join(temp_dir, 'capsul')])
-            os.chdir(os.path.join(temp_dir, 'capsul'))
-            subprocess.call([sys.executable, 'setup.py', 'install', '--user',
-                             '--force', '--prefix='])
-
-        except:
-            print('\n\nProblem while upgrading capsul...')
-
         os.chdir(cwd)
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     def use_matlab_changed(self):
         """
-        Called when the use_matlab checkbox is changed
+        Toggles the state of MATLAB-related options based on the 'use_matlab' 
+        checkbox. When unchecked, all MATLAB and SPM options are disabled.
+
+        Called when the use_matlab checkbox is changed.
         """
 
         if not self.use_matlab_checkbox.isChecked():
@@ -1073,13 +1460,19 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
     def use_spm_changed(self):
         """
+        Updates the state of SPM-related options based on the 'use_spm'
+        checkbox.
+
+        When unchecked, disables all SPM options, and when checked, enables the
+        regular SPM options while disabling the standalone SPM options.
+
         Called when the use_spm checkbox is changed
         """
-
         if not self.use_spm_checkbox.isChecked():
             self.spm_choice.setDisabled(True)
             self.spm_label.setDisabled(True)
             self.spm_browse.setDisabled(True)
+
         else:
             self.spm_choice.setDisabled(False)
             self.spm_label.setDisabled(False)
@@ -1091,6 +1484,12 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
     def use_spm_standalone_changed(self):
         """
+        Updates the state of standalone SPM-related options based on the 
+        'use_spm_standalone' checkbox. 
+
+        When checked, enables the standalone SPM options while disabling
+        the regular SPM options, and vice versa.
+
         Called when the use_spm_standalone checkbox is changed
         """
 
