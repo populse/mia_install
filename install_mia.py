@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- #
+# -*- coding: utf-8 -*-
 """The first module used during mia's installation.
 
 This module is responsible for initializing core parameters and conducting
@@ -27,12 +27,13 @@ import sys
 # We use this module only in user mode.
 os.environ["MIA_DEV_MODE"] = "0"
 
+
 def install_and_import(module_name):
     """Tries to import the specified module.
 
     If the module is not found, it installs the module using pip and then
     imports it.
-    If running inside a virtual environment, it installs the module there; 
+    If running inside a virtual environment, it installs the module there;
     otherwise, it adds the '--user' flag for a user-level installation.
 
     Args:
@@ -41,16 +42,16 @@ def install_and_import(module_name):
     Raises:
         subprocess.CalledProcessError: If the pip installation fails.
         ImportError: If the module cannot be imported even after installation.
-    
+
     Example:
         install_and_import('pyyaml')
         install_and_import('requests')
 
     Note:
-        Some module names differ between PyPi and Python import names, 
+        Some module names differ between PyPi and Python import names,
         such as "pyyaml" (PyPi) vs. "yaml" (Python).
     """
-    import_name = 'yaml' if module_name == 'pyyaml' else module_name
+    import_name = "yaml" if module_name == "pyyaml" else module_name
 
     try:
         # Try to import the module
@@ -59,63 +60,76 @@ def install_and_import(module_name):
     except ImportError:
         # Module not found, install it
         print(f"{module_name} not found. Installing...")
-        
+
         # Check if running in a virtual environment
         is_venv = sys.prefix != sys.base_prefix
-        pip_install_command = [sys.executable,
-                               '-m',
-                               'pip',
-                               'install',
-                               module_name]
-        
+        pip_install_command = [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            module_name,
+        ]
+
         # Add '--user' flag only if not in a virtual environment
         if not is_venv:
-            pip_install_command.insert(4, '--user')
-        
+            pip_install_command.insert(4, "--user")
+
         subprocess.check_call(pip_install_command)
-        
+
         # Try to import the module again after installation
         try:
             importlib.import_module(import_name)
-            
-        except ImportError:
-            raise ImportError(f"Failed to import {module_name} after "
-                              f"installation.")
 
-if __name__ == '__main__':
-    print('Please wait, installation in progress! ...\n')
+        except ImportError:
+            raise ImportError(
+                f"Failed to import {module_name} after " f"installation."
+            )
+
+
+if __name__ == "__main__":
+    print("Please wait, installation in progress! ...\n")
     # List of required packages
-    packages = ['PyQt5', 'pyyaml', 'packaging', 'cryptography']
+    packages = ["PyQt5", "pyyaml", "packaging", "cryptography"]
 
     for package in packages:
 
         try:
             install_and_import(package)
-        
+
         except subprocess.CalledProcessError:
-            print(f"Failed to install {package}. Please check your "
-                  f"pip installation.")
+            print(
+                f"Failed to install {package}. Please check your "
+                f"pip installation."
+            )
 
         except ImportError:
-            print(f"Could not import {package} after installation. "
-                  "Please check compatibility or try reinstalling manually.")
+            print(
+                f"Could not import {package} after installation. "
+                "Please check compatibility or try reinstalling manually."
+            )
 
     # Clear specific packages from sys.modules to avoid conflicts
     for key in list(sys.modules):
 
-        if key.startswith("PyQt5") or key in {"yaml",
-                                              "packaging",
-                                              "cryptography"}:
+        if key.startswith("PyQt5") or key in {
+            "yaml",
+            "packaging",
+            "cryptography",
+        }:
             del sys.modules[key]
 
     try:
+        import crypt  # noqa: F401
+
+        import packaging  # noqa: F401
+        import yaml  # noqa: F401
         from PyQt5 import QtWidgets
-        import yaml, packaging, crypt
+
         # FIXME: Replace 'crypt' with updated libraries like legacycrypt,
         #        bcrypt, argon2-cffi, hashlib, and passlib when upgrading
         #        to Python 3.13
-
-         # Import MIAInstallWidget after confirming dependencies
+        # Import MIAInstallWidget after confirming dependencies
         from mia_install_widget import MIAInstallWidget
 
     except ImportError as e:
@@ -125,7 +139,7 @@ if __name__ == '__main__':
             "\n\nIf the issue persists, try manually installing the "
             "problematic module.\n"
         )
-        
+
     # Initialize and display Mia installation widget
     app = QtWidgets.QApplication(sys.argv)
     mia_install_widget = MIAInstallWidget()
@@ -133,9 +147,11 @@ if __name__ == '__main__':
     # Center widget on screen
     frame_gm = mia_install_widget.frameGeometry()
     screen = QtWidgets.QApplication.desktop().screenNumber(
-                            QtWidgets.QApplication.desktop().cursor().pos())
-    center_point = QtWidgets.QApplication.desktop().screenGeometry(
-                                                            screen).center()
+        QtWidgets.QApplication.desktop().cursor().pos()
+    )
+    center_point = (
+        QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+    )
     frame_gm.moveCenter(center_point)
     mia_install_widget.move(frame_gm.topLeft())
 
