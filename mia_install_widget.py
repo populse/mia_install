@@ -125,7 +125,9 @@ class MIAInstallWidget(QtWidgets.QWidget):
         v_box_mia_config.addWidget(self.mia_config_path_label)
         v_box_mia_config.addLayout(h_box_mia_config)
 
-        projects_path_default = ''  # setting a default value for the projects?
+        projects_path_default = os.path.join(os.path.expanduser('~'),
+                                             'Documents',
+                                             'user_mia_projects')
 
         self.projects_path_label = QtWidgets.QLabel("Mia projects path:")
         self.projects_path_choice = QtWidgets.QLineEdit(projects_path_default)
