@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """The first module used during mia's installation.
 
 This module is responsible for initializing core parameters and conducting

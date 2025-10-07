@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """The module used for mia's installation and configuration.
 
 Basically, this module is dedicated to the GUI used at the installation time
@@ -744,7 +743,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
         if not os.path.exists(os.path.dirname(dot_mia_config)):
             os.mkdir(os.path.dirname(dot_mia_config))
             print(
-                "\nThe {0} directory is created "
+                "\nThe {} directory is created "
                 "...".format(os.path.dirname(dot_mia_config))
             )
             Path(os.path.join(dot_mia_config)).touch()
@@ -753,7 +752,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
             Path(os.path.join(dot_mia_config)).touch()
 
         # We try to keep the old values in dot_mia_config file
-        with open(dot_mia_config, "r") as stream:
+        with open(dot_mia_config) as stream:
 
             try:
 
@@ -788,7 +787,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         if not os.path.exists(properties_dir):
             os.makedirs(properties_dir, exist_ok=True)
-            print("\nThe {0} directory is created...".format(properties_dir))
+            print(f"\nThe {properties_dir} directory is created...")
 
         if not os.path.exists(
             os.path.join(properties_dir, "saved_projects.yml")
@@ -806,7 +805,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
                 )
 
             print(
-                "\nThe {0} file is created...".format(
+                "\nThe {} file is created...".format(
                     os.path.join(properties_dir, "saved_projects.yml")
                 )
             )
@@ -835,7 +834,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
                 )
 
             print(
-                "\nThe {0} file is created...".format(
+                "\nThe {} file is created...".format(
                     os.path.join(properties_dir, "config.yml")
                 )
             )
@@ -848,7 +847,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
             if not os.path.exists(user_processes_dir):
                 os.makedirs(user_processes_dir, exist_ok=True)
                 print(
-                    "\nThe {0} directory is created...".format(
+                    "\nThe {} directory is created...".format(
                         user_processes_dir
                     )
                 )
@@ -863,7 +862,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
                     )
                 ).touch()
                 print(
-                    "\nThe {0} file is created...".format(
+                    "\nThe {} file is created...".format(
                         os.path.join(properties_dir, "config.yml")
                     )
                 )
@@ -875,7 +874,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
         if not os.path.isdir(projects_path):
             os.makedirs(projects_path, exist_ok=True)
-            print("\nThe {0} directory is created...".format(projects_path))
+            print(f"\nThe {projects_path} directory is created...")
 
             if len(os.listdir(projects_path)) != 0:
                 message = "The {} folder already contains data!".format(
@@ -917,7 +916,7 @@ class MIAInstallWidget(QtWidgets.QWidget):
 
                     except Exception as e:
                         print(
-                            "Failed to delete {0}. Reason: {1}".format(
+                            "Failed to delete {}. Reason: {}".format(
                                 elmt_path, e
                             )
                         )
@@ -1186,20 +1185,20 @@ class MIAInstallWidget(QtWidgets.QWidget):
         h_box_top_label.addWidget(self.mia_installed_label)
         h_box_top_label.addStretch(1)
 
-        mia_label_text = "- Mia configuration path: {0}".format(
+        mia_label_text = "- Mia configuration path: {}".format(
             self.properties_dir
         )
-        projects_label_text = "- projects path: {0}".format(
+        projects_label_text = "- projects path: {}".format(
             self.projects_save_path
         )
-        mri_conv_label_text = "- MRIFileManager path: {0}".format(
+        mri_conv_label_text = "- MRIFileManager path: {}".format(
             self.mri_conv_path
         )
-        mia_resources_label_text = "- MiaResources path: {0}".format(
+        mia_resources_label_text = "- MiaResources path: {}".format(
             self.mia_resources_path
         )
         operating_mode_label_text = (
-            "Populse_MIA has been installed with {0} " "mode."
+            "Populse_MIA has been installed with {} " "mode."
         ).format(self.operating_mode)
 
         mia_label = QtWidgets.QLabel(mia_label_text)
